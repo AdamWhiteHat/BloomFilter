@@ -45,3 +45,12 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+BloomFilter/obj/*
+BloomFilter/bin/*
+
+TestBloomFilter/obj/*
+TestBloomFilter/bin/*
+
+*.suo
+*.pdb
