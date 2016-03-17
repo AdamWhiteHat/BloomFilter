@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BloomFilter
+namespace BloomFilterCore
 {
-	public class Filter
+	public class BloomFilter
 	{
 		public int Factor;
 		public int MaxElements;		
@@ -24,7 +24,7 @@ namespace BloomFilter
 		private BitArray filterArray;
 		private int samples = 100;
 
-		public Filter(int maxElements, int hashesPerToken, int factor)
+		public BloomFilter(int maxElements, int hashesPerToken, int factor)
 		{
 			if (maxElements < 1 || hashesPerToken < 1 || factor < 1)
 			{
@@ -51,7 +51,12 @@ namespace BloomFilter
 				using (Hash tokenHash = new Hash(token, IndexByteSize, maxIndex))
 				{
 					// tokenHash.GetIndices().Take(HashesPerToken).ToList().ForEach(i => filterArray[i] |= true);
-					tokenHash.GetIndices().Take(HashesPerToken).Where(i => !filterArray[i]).ToList().ForEach(i => filterArray[i] |= true);
+					List<int> indices = tokenHash.GetIndices().Take(HashesPerToken).Where(i => !filterArray[i]).ToList();
+
+					foreach (int index in indices)
+					{
+						 filterArray[index] = true;
+					}
 					ElementsHashed += 1;
 				}
 			}
@@ -87,7 +92,7 @@ namespace BloomFilter
 			}
 		}
 
-		public static Filter DeserializeFilter(string filename)
+		public static BloomFilter DeserializeFilter(string filename)
 		{
 			if (string.IsNullOrWhiteSpace(filename) || !File.Exists(filename))
 			{
@@ -97,11 +102,11 @@ namespace BloomFilter
 			byte[] header = input.Take(12).ToArray();
 			byte[] body = input.Skip(12).ToArray();
 						
-			int maxElements = BitConverter.ToInt32(header, 0); // byte[] maxElements = body.Take(4).ToArray(); byte[] hashesPerToken = body.Skip(4).Take(4).ToArray(); byte[] factor = body.Skip(8).Take(4).ToArray();
+			int maxElements = BitConverter.ToInt32(header, 0);
 			int hashesPerToken = BitConverter.ToInt32(header, 4);
 			int factor = BitConverter.ToInt32(header, 8);
 
-			Filter result = new Filter(maxElements, hashesPerToken, factor);
+			BloomFilter result = new BloomFilter(maxElements, hashesPerToken, factor);
 			result.filterArray = new BitArray(body);
 			return result;
 		}
@@ -121,9 +126,6 @@ namespace BloomFilter
 				//result.Append(filterBits[index]?'1':'0');				
 				index += chunk;
 			}
-
-			//int[] activeIndicies = GetActiveBitIndicies();
-			//result.AppendLine(string.Join(" ", activeIndicies));
 
 			string string1 = string.Concat("[", string.Join("][", density.Take(samples / 4).ToArray()), "]");
 			string string2 = string.Concat("[", string.Join("][", density.Skip(samples / 4).Take(samples / 4).ToArray()), "]");
@@ -151,10 +153,7 @@ namespace BloomFilter
 			result.AppendLine(d1);
 			result.AppendLine(d2);
 			result.AppendLine();
-			result.AppendLine();
-			
-			//result.AppendLine(string.Concat(Environment.NewLine, "[", string.Join("], [", GetActiveBitIndicies().Select(i => i.ToString())), "]"));
-			return result.ToString();//new string(filterArray.Cast<bool>().Take(100).ToList().Select(b => b?'1':'0').ToArray());
+			return result.ToString();
 		}
 
 		public string GetUtilization()
@@ -163,7 +162,7 @@ namespace BloomFilter
 			int trueBits = filterBits.Count(b => b);
 			int totalBits = filterArray.Length;
 			int percent = (trueBits * 100) / totalBits;
-			return string.Format("{0}%\t({1}/{2})", percent, trueBits, totalBits);// +Environment.NewLine + AsString();
+			return string.Format("{0}%\t({1}/{2})", percent, trueBits, totalBits);
 		}
 
 		public int[] GetActiveBitIndicies()

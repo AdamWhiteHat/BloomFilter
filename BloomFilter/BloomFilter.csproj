@@ -7,7 +7,7 @@
     <ProjectGuid>{D0519CA7-22BC-44F6-888E-71F24487BFC6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BloomFilter</RootNamespace>
+    <RootNamespace>BloomFilterCore</RootNamespace>
     <AssemblyName>BloomFilter</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -8,14 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using BloomFilter;
+using BloomFilterCore;
 
 namespace TestBloomFilter
 {
 	public partial class MainForm : Form
 	{
 		private Random rand;
-		private Filter _filter;
+		private BloomFilter _filter;
 		private string filename;
 		private BackgroundWorker addHashesWorker;
 		private static string buttonText_AddHashes	= "Add Hashes";
@@ -51,7 +51,7 @@ namespace TestBloomFilter
 			int.TryParse(tbFactor.Text.Replace(",", ""), out factor);
 			int.TryParse(tbHashes.Text.Replace(",", ""), out hashesPerToken);
 
-			_filter = new Filter(maxElements, hashesPerToken, factor);
+			_filter = new BloomFilter(maxElements, hashesPerToken, factor);
 
 			label1.Text = string.Format("{0} bits", _filter.SizeBits);
 			label2.Text = string.Format("{0} B", _filter.SizeBytes);
@@ -226,7 +226,7 @@ namespace TestBloomFilter
 			string file = OpenFileDlg();
 			if (!string.IsNullOrWhiteSpace(file))
 			{
-				_filter = Filter.DeserializeFilter(file);
+				_filter = BloomFilter.DeserializeFilter(file);
 			}
 		}
 
