@@ -11,7 +11,7 @@ namespace BloomFilterCore
 	public class BloomFilter
 	{
 		public int Factor;
-		public int MaxElements;		
+		public int MaxElements;
 		public int SizeBits { get { return MaxElements * Factor; } }
 		public int SizeBytes { get { return SizeBits / 8; } }
 		public int SizeKB { get { return SizeBits / 8192; } }
@@ -20,7 +20,7 @@ namespace BloomFilterCore
 		public int IndexByteSize { get { return (int)Math.Ceiling(IndexBitSize / 8); } }
 		public int ElementsHashed { get; private set; }
 		public int HashesPerToken { get; private set; }
-		
+
 		private BitArray filterArray;
 		private int samples = 100;
 
@@ -34,6 +34,8 @@ namespace BloomFilterCore
 			this.Factor = factor;
 			this.MaxElements = maxElements;
 			this.HashesPerToken = hashesPerToken;
+
+			// Increases MaxElements until divisible by 8
 			while (SizeBits % 8 != 0) // || IndexByteSize % 4 != 0) // || IndexBitSize % 8 != 0)
 			{
 				this.MaxElements += 1;
@@ -45,21 +47,21 @@ namespace BloomFilterCore
 
 		public void Add(string token)
 		{
-			if (!string.IsNullOrEmpty(token))
-			{
-				int maxIndex = filterArray.Length - 1;
-				using (Hash tokenHash = new Hash(token, IndexByteSize, maxIndex))
-				{
-					// tokenHash.GetIndices().Take(HashesPerToken).ToList().ForEach(i => filterArray[i] |= true);
-					List<int> indices = tokenHash.GetIndices().Take(HashesPerToken).Where(i => !filterArray[i]).ToList();
+			if (string.IsNullOrEmpty(token)) { return; }
 
-					foreach (int index in indices)
-					{
-						 filterArray[index] = true;
-					}
-					ElementsHashed += 1;
+			int maxIndex = filterArray.Length - 1;
+			using (Hash tokenHash = new Hash(token, IndexByteSize, maxIndex))
+			{
+				// tokenHash.GetIndices().Take(HashesPerToken).ToList().ForEach(i => filterArray[i] |= true);
+				List<int> indices = tokenHash.GetIndices().Take(HashesPerToken).Where(i => !filterArray[i]).ToList();
+
+				foreach (int index in indices)
+				{
+					filterArray[index] = true;
 				}
+				ElementsHashed += 1;
 			}
+
 		}
 
 		public bool Query(string token)
@@ -101,7 +103,7 @@ namespace BloomFilterCore
 			byte[] input = File.ReadAllBytes(filename);
 			byte[] header = input.Take(12).ToArray();
 			byte[] body = input.Skip(12).ToArray();
-						
+
 			int maxElements = BitConverter.ToInt32(header, 0);
 			int hashesPerToken = BitConverter.ToInt32(header, 4);
 			int factor = BitConverter.ToInt32(header, 8);
@@ -113,7 +115,7 @@ namespace BloomFilterCore
 
 		public string AsString()
 		{
-			int chunk = (filterArray.Length / samples)-1;
+			int chunk = (filterArray.Length / samples) - 1;
 			bool[] filterBits = filterArray.Cast<bool>().ToArray();
 
 			int index = 0;
@@ -134,11 +136,11 @@ namespace BloomFilterCore
 
 			int halfLen = string1.Length / 2;
 
-			string a1 = string1.Substring(0,halfLen);
+			string a1 = string1.Substring(0, halfLen);
 			string a2 = string1.Substring(halfLen);
 			string b1 = string2.Substring(0, halfLen);
 			string b2 = string2.Substring(halfLen);
-			string c1 = string3.Substring(0,halfLen);
+			string c1 = string3.Substring(0, halfLen);
 			string c2 = string3.Substring(halfLen);
 			string d1 = string4.Substring(0, halfLen);
 			string d2 = string4.Substring(halfLen);
@@ -170,7 +172,7 @@ namespace BloomFilterCore
 			int index = 0;
 			List<int> result = new List<int>();
 			List<bool> bitList = filterArray.Cast<bool>().ToList();
-			while(true)
+			while (true)
 			{
 				int i = bitList.IndexOf(true, index);
 				if (i == -1) { return result.ToArray(); }

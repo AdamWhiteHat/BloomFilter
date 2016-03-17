@@ -8,60 +8,26 @@ using System.Threading.Tasks;
 
 namespace BloomFilterCore
 {
-	[StructLayout(LayoutKind.Explicit)]
-	public struct ByteBits
+	public static class ByteBits
 	{
-		[FieldOffset(0)]
-		public byte Value;
+		public static bool[] GetBools(byte[] bytes)
+		{			
+			Array.Reverse(bytes); // Modify copy instead of original array
+			BitArray bitArray = new BitArray(bytes);
+			List<bool> resultList = new List<bool>();
 
-		[FieldOffset(0)]
-		public bool Bit01;
+			int max = bitArray.Count;
+			int counter = 0;
+			while (counter < max)
+			{
+				resultList.Add(bitArray[counter]);
+				counter += 1;
+			}
 
-		[FieldOffset(1)]
-		public bool Bit02;
+			bool[] result = resultList.ToArray();
+			Array.Reverse(result);
 
-		[FieldOffset(2)]
-		public bool Bit03;
-
-		[FieldOffset(3)]
-		public bool Bit04;
-
-		[FieldOffset(4)]
-		public bool Bit05;
-
-		[FieldOffset(5)]
-		public bool Bit06;
-
-		[FieldOffset(6)]
-		public bool Bit07;
-
-		[FieldOffset(7)]
-		public bool Bit08;
-
-		public ByteBits(byte value)
-		{
-			this.Value = value;
-
-			BitArray bits = new BitArray(this.Value);
-			Bit01 = bits.Get(0);
-			Bit02 = bits.Get(1);
-			Bit03 = bits.Get(2);
-			Bit04 = bits.Get(3);
-			Bit05 = bits.Get(4);
-			Bit06 = bits.Get(5);
-			Bit07 = bits.Get(6);
-			Bit08 = bits.Get(7);
-		}
-
-		public bool[] GetBits()
-		{
-			return new bool[] { Bit01, Bit02, Bit03, Bit04, Bit05, Bit06, Bit07, Bit08 };
-		}
-
-		//public static implicit operator ByteBits(byte value) { return new ByteBits(value); }
-		public static implicit operator byte(ByteBits value)
-		{
-			return value.Value;
+			return result;
 		}
 
 		public static byte[] GetBytes(bool[] bits)
@@ -75,6 +41,5 @@ namespace BloomFilterCore
 			Array.Reverse(result);
 			return result;
 		}
-
 	}
 }
