@@ -12,7 +12,7 @@ namespace BloomFilterCore
 	{
 		public int TableSize { get; private set; }
 		public bool IsDisposed { get; private set; }
-	
+
 		private byte i;
 		private byte j;
 		private byte l;
@@ -42,29 +42,37 @@ namespace BloomFilterCore
 		{
 			if (!Coprimes.IsCoprime(tableSize, coPrime))
 			{
-				throw new ArgumentException(string.Format("coPrime must be co-prime to tableSize: {0}",tableSize));
+				throw new ArgumentException(string.Format("coPrime must be co-prime to tableSize: {0}", tableSize));
 			}
 
 			Clear();
 			TableSize = tableSize;
 
 			int counter = 0;
-			int val = coPrime % tableSize ;
+			int val = coPrime % tableSize;
 			List<byte> result = new List<byte>();
 			while (counter < 255)
-			{				
+			{
 				val = val + coPrime;
 				if (val > TableSize)
 				{
 					val = val % TableSize;
 				}
 				result.Add((byte)(val));
-				counter+=1;
+				counter += 1;
 			}
 			_table = result.ToArray();
 			IsDisposed = false;
 		}
-							
+
+		public byte this[int index]
+		{
+			get
+			{
+				return _table[index];
+			}
+		}
+
 		public byte[] GetBytes(int quantity)
 		{
 			return GetBytes().Take(quantity).ToArray();
