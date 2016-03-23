@@ -51,7 +51,7 @@ namespace TestBloomFilter
 			int.TryParse(tbFactor.Text.Replace(",", ""), out factor);
 			int.TryParse(tbHashes.Text.Replace(",", ""), out hashesPerToken);
 
-			_filter = new BloomFilter(maxElements, hashesPerToken, factor);
+			_filter = new BloomFilter(maxElements, hashesPerToken * factor);
 
 			label1.Text = string.Format("{0} bits", _filter.SizeBits);
 			label2.Text = string.Format("{0} B", _filter.SizeBytes);
@@ -148,6 +148,11 @@ namespace TestBloomFilter
 			}
 			else // If a number
 			{
+				if (string.IsNullOrWhiteSpace(filename))
+				{
+					filename = OpenFileDlg();
+				}
+
 				string[] lines = File.ReadAllLines(filename);
 				int counter = 0;
 				int correct = 0;
