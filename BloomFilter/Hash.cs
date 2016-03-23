@@ -10,8 +10,8 @@ namespace BloomFilterCore
 {
 	public class Hash : IDisposable
 	{
-		public int TableSize = 256;	// Because we are using bytes
-		public bool IsDisposed { get; protected set; }
+		public int TableSize { get; private set; }
+		public bool IsDisposed { get; private set; }
 	
 		private byte i;
 		private byte j;
@@ -22,6 +22,7 @@ namespace BloomFilterCore
 		public Hash()
 		{
 			Clear();
+			TableSize = 256; 	// Because we are using bytes
 			int counter = TableSize;
 			List<byte> result = new List<byte>();
 			while (counter-- > 0)
@@ -29,7 +30,39 @@ namespace BloomFilterCore
 				result.Add((byte)(255 - counter));
 			}
 			_table = result.ToArray();
-			IsDisposed = false;		
+			IsDisposed = false;
+		}
+
+		public Hash(int coPrime)
+			: this(256, coPrime)
+		{
+		}
+
+		public Hash(int tableSize, int coPrime)
+		{
+			if (!Coprimes.IsCoprime(tableSize, coPrime))
+			{
+				throw new ArgumentException(string.Format("coPrime must be co-prime to tableSize: {0}",tableSize));
+			}
+
+			Clear();
+			TableSize = tableSize;
+
+			int counter = 0;
+			int val = coPrime % tableSize ;
+			List<byte> result = new List<byte>();
+			while (counter < 255)
+			{				
+				val = val + coPrime;
+				if (val > TableSize)
+				{
+					val = val % TableSize;
+				}
+				result.Add((byte)(val));
+				counter+=1;
+			}
+			_table = result.ToArray();
+			IsDisposed = false;
 		}
 							
 		public byte[] GetBytes(int quantity)
