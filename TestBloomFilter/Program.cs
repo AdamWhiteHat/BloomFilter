@@ -9,6 +9,8 @@ using System.Runtime.ExceptionServices;
 
 namespace TestBloomFilter
 {
+	using BloomFilterCore;
+
 	internal static class Program
 	{
 		/// <summary>
@@ -18,14 +20,13 @@ namespace TestBloomFilter
 		internal static void Main()
 		{
 			Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new MainForm());
+			Application.SetCompatibleTextRenderingDefault(false);			
 			Application.ThreadException += Application_ThreadException;
-			AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+			Application.Run(new MainForm());
 		}
 
-		private static string ExceptionLogFilename = "Exception.log.txt";
+		private static string ExceptionLogFilename = Settings.Output_Filename;
 		private static string ExceptionLogTimestamp = "yyyy'-'MM'-'dd @ HH':'mm':'ss tt";		
 
 		private static void LogExceptionInformation(Exception ex)
@@ -39,13 +40,10 @@ namespace TestBloomFilter
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
 			Exception ex = e.ExceptionObject as Exception;
-			if (ex == null) { return; }
-			LogExceptionInformation(ex);
-		}
-
-		private static void CurrentDomain_FirstChanceException(object sender, FirstChanceExceptionEventArgs e)
-		{
-			LogExceptionInformation(e.Exception);
+			if (ex != null)
+			{
+				LogExceptionInformation(ex);
+			}
 		}
 
 		private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)

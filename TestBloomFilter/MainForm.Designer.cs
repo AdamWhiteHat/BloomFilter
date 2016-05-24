@@ -32,8 +32,6 @@
 			this.labelElements = new System.Windows.Forms.Label();
 			this.btnCreateFilter = new System.Windows.Forms.Button();
 			this.btnAddHashes = new System.Windows.Forms.Button();
-			this.labelFactor = new System.Windows.Forms.Label();
-			this.tbFactor = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.label4 = new System.Windows.Forms.Label();
@@ -54,7 +52,6 @@
 			this.label8 = new System.Windows.Forms.Label();
 			this.label9 = new System.Windows.Forms.Label();
 			this.btnTestAbc = new System.Windows.Forms.Button();
-			this.btnTest2 = new System.Windows.Forms.Button();
 			this.btnOpenFilter = new System.Windows.Forms.Button();
 			this.btnSaveFilter = new System.Windows.Forms.Button();
 			this.SuspendLayout();
@@ -62,7 +59,7 @@
 			// tbElements
 			// 
 			this.tbElements.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.tbElements.Location = new System.Drawing.Point(274, 7);
+			this.tbElements.Location = new System.Drawing.Point(396, 7);
 			this.tbElements.Name = "tbElements";
 			this.tbElements.Size = new System.Drawing.Size(109, 20);
 			this.tbElements.TabIndex = 0;
@@ -72,11 +69,12 @@
 			// labelElements
 			// 
 			this.labelElements.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.labelElements.Location = new System.Drawing.Point(274, 30);
+			this.labelElements.AutoSize = true;
+			this.labelElements.Location = new System.Drawing.Point(293, 10);
 			this.labelElements.Name = "labelElements";
-			this.labelElements.Size = new System.Drawing.Size(109, 15);
+			this.labelElements.Size = new System.Drawing.Size(97, 13);
 			this.labelElements.TabIndex = 1;
-			this.labelElements.Text = "( Max # of elements )";
+			this.labelElements.Text = "Max # of elements:";
 			this.labelElements.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
 			// btnCreateFilter
@@ -100,26 +98,6 @@
 			this.btnAddHashes.Text = "Add Hashes";
 			this.btnAddHashes.UseVisualStyleBackColor = true;
 			this.btnAddHashes.Click += new System.EventHandler(this.btnAddHashes_Click);
-			// 
-			// labelFactor
-			// 
-			this.labelFactor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.labelFactor.Location = new System.Drawing.Point(389, 30);
-			this.labelFactor.Name = "labelFactor";
-			this.labelFactor.Size = new System.Drawing.Size(55, 15);
-			this.labelFactor.TabIndex = 5;
-			this.labelFactor.Text = "( Factor )";
-			this.labelFactor.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-			// 
-			// tbFactor
-			// 
-			this.tbFactor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.tbFactor.Location = new System.Drawing.Point(389, 7);
-			this.tbFactor.Name = "tbFactor";
-			this.tbFactor.Size = new System.Drawing.Size(55, 20);
-			this.tbFactor.TabIndex = 4;
-			this.tbFactor.Text = "20";
-			this.tbFactor.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// label1
 			// 
@@ -205,7 +183,7 @@
 			this.tbTestInput.Name = "tbTestInput";
 			this.tbTestInput.Size = new System.Drawing.Size(183, 20);
 			this.tbTestInput.TabIndex = 18;
-			this.tbTestInput.Text = "100,000";
+			this.tbTestInput.Text = "100";
 			this.tbTestInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// label10
@@ -225,7 +203,7 @@
 			this.tbHashInput.Name = "tbHashInput";
 			this.tbHashInput.Size = new System.Drawing.Size(183, 20);
 			this.tbHashInput.TabIndex = 20;
-			this.tbHashInput.Text = "a.txt";
+			this.tbHashInput.Text = "primes_68906.txt";
 			this.tbHashInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// tbOutput
@@ -249,28 +227,29 @@
 			this.btnTest1.Name = "btnTest1";
 			this.btnTest1.Size = new System.Drawing.Size(75, 23);
 			this.btnTest1.TabIndex = 23;
-			this.btnTest1.Text = "Test 001";
+			this.btnTest1.Text = "Refresh Ctrls";
 			this.btnTest1.UseVisualStyleBackColor = true;
 			this.btnTest1.Click += new System.EventHandler(this.btnTest_Click_1);
 			// 
 			// label11
 			// 
 			this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.label11.Location = new System.Drawing.Point(450, 30);
+			this.label11.AutoSize = true;
+			this.label11.Location = new System.Drawing.Point(286, 32);
 			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(55, 15);
+			this.label11.Size = new System.Drawing.Size(104, 13);
 			this.label11.TabIndex = 25;
-			this.label11.Text = "( Hashes )";
+			this.label11.Text = "Hashes per element:";
 			this.label11.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
 			// tbHashes
 			// 
 			this.tbHashes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.tbHashes.Location = new System.Drawing.Point(450, 7);
+			this.tbHashes.Location = new System.Drawing.Point(396, 29);
 			this.tbHashes.Name = "tbHashes";
 			this.tbHashes.Size = new System.Drawing.Size(55, 20);
 			this.tbHashes.TabIndex = 24;
-			this.tbHashes.Text = "1,000";
+			this.tbHashes.Text = "8";
 			this.tbHashes.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// cbForceToken
@@ -303,23 +282,13 @@
 			// btnTestAbc
 			// 
 			this.btnTestAbc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnTestAbc.Location = new System.Drawing.Point(536, 185);
+			this.btnTestAbc.Location = new System.Drawing.Point(455, 185);
 			this.btnTestAbc.Name = "btnTestAbc";
 			this.btnTestAbc.Size = new System.Drawing.Size(75, 23);
 			this.btnTestAbc.TabIndex = 27;
 			this.btnTestAbc.Text = "Test ABC";
 			this.btnTestAbc.UseVisualStyleBackColor = true;
 			this.btnTestAbc.Click += new System.EventHandler(this.btnTestAbc_Click);
-			// 
-			// btnTest2
-			// 
-			this.btnTest2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnTest2.Location = new System.Drawing.Point(455, 185);
-			this.btnTest2.Name = "btnTest2";
-			this.btnTest2.Size = new System.Drawing.Size(75, 23);
-			this.btnTest2.TabIndex = 28;
-			this.btnTest2.Text = "Test 002";
-			this.btnTest2.UseVisualStyleBackColor = true;
 			// 
 			// btnOpenFilter
 			// 
@@ -350,7 +319,6 @@
 			this.ClientSize = new System.Drawing.Size(623, 440);
 			this.Controls.Add(this.btnSaveFilter);
 			this.Controls.Add(this.btnOpenFilter);
-			this.Controls.Add(this.btnTest2);
 			this.Controls.Add(this.btnTestAbc);
 			this.Controls.Add(this.cbForceToken);
 			this.Controls.Add(this.label11);
@@ -371,8 +339,6 @@
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
-			this.Controls.Add(this.labelFactor);
-			this.Controls.Add(this.tbFactor);
 			this.Controls.Add(this.btnAddHashes);
 			this.Controls.Add(this.btnCreateFilter);
 			this.Controls.Add(this.labelElements);
@@ -390,8 +356,6 @@
 		private System.Windows.Forms.Label labelElements;
 		private System.Windows.Forms.Button btnCreateFilter;
 		private System.Windows.Forms.Button btnAddHashes;
-		private System.Windows.Forms.Label labelFactor;
-		private System.Windows.Forms.TextBox tbFactor;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label4;
@@ -412,7 +376,6 @@
 		private System.Windows.Forms.Label label8;
 		private System.Windows.Forms.Label label9;
 		private System.Windows.Forms.Button btnTestAbc;
-		private System.Windows.Forms.Button btnTest2;
 		private System.Windows.Forms.Button btnOpenFilter;
 		private System.Windows.Forms.Button btnSaveFilter;
 	}
