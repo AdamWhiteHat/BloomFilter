@@ -50,12 +50,9 @@ namespace BloomFilterCore
 		public IEnumerable<int> GetIndices()
 		{
 			CheckDisposed();
-			//int shiftAmmount = 0;
 			List<byte> bytes;
 			while (!IsDisposed)
 			{
-				//shiftAmmount = token[tokenIndex] * tokenCounter;
-				//this.Shuffle(shiftAmmount); // Shuffle by an amount that is unique to the token thats being hashed
 				bytes = this.GetBytes().Take(quantityIndexBytes).ToList();
 				
 				// Pad bytes to a multiple of 4

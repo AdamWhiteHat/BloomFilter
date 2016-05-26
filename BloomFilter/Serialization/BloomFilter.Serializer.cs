@@ -16,19 +16,34 @@ namespace BloomFilterCore.Serialization
 
 			try
 			{
-				List<byte> output = new List<byte>();
-				output.AddRange(BitConverter.GetBytes(filter.MaxElements));
-				output.AddRange(BitConverter.GetBytes(filter.HashesPerToken));
-				output.AddRange(BitConverter.GetBytes(filter.ElementsHashed));
+				List<Int32> header = new List<Int32>();
+				List<byte> body = new List<byte>();
+				header.Add(filter.MaxElements);
+				header.Add(filter.HashesPerToken);
+				header.Add(filter.ElementsHashed);
 				if (Settings.Output_Compress)
 				{
-					output.AddRange(HuffmanCompression.Encode(filter.filterArray.OfType<bool>()));
+					body.AddRange(HuffmanCompression.Encode(filter.filterArray.OfType<bool>()));
 				}
 				else
 				{
-					output.AddRange(ByteBits.GetBytes(filter.filterArray.OfType<bool>().ToArray()));
+					body.AddRange(ByteBits.GetBytes(filter.filterArray.OfType<bool>().ToArray()));
 				}
-				File.WriteAllBytes(filename, output.ToArray());
+				
+				using (FileStream fStream = File.Open(filename, FileMode.Create))
+				{
+					using (BinaryWriter bWriter = new BinaryWriter(fStream, Encoding.UTF8, false))
+					{
+						foreach (Int32 integer in header)
+						{
+							bWriter.Write(integer);
+						}
+						bWriter.Write(body.ToArray());
+						bWriter.Flush();
+					}
+				}
+				
+				//File.WriteAllBytes(filename, header.ToArray());
 			}
 			catch (Exception ex)
 			{
@@ -45,24 +60,27 @@ namespace BloomFilterCore.Serialization
 			try
 			{
 				byte[] input = File.ReadAllBytes(filename);
-				byte[] header = input.Take(8).ToArray();
+				byte[] header = input.Take(24).ToArray();
+				byte[] body = input.Skip(24).ToArray();
 
 				Int32 maxElements = BitConverter.ToInt32(header, 0);
-				Int32 hashesPerToken = BitConverter.ToInt32(header, 4);
-				Int32 elementsHashed = BitConverter.ToInt32(header, 4);
+				Int32 hashesPerToken = BitConverter.ToInt32(header, 8);
+				Int32 elementsHashed = BitConverter.ToInt32(header, 16);
 
-				bool[] body = new bool[] { };
+				// TODO: Ensure that (body.Count % 8 == 0)
+				// TODO: Ensure body.Count == (input.Count - header.Count)
+				BitArray bits = null;
 				if (Settings.Output_Compress)
 				{
-					body = HuffmanCompression.Decode(input.Skip(8));
+					bits = HuffmanCompression.Decode(body);
 				}
 				else
 				{
-					body = ByteBits.GetBools(input.Skip(8).ToArray());
+					bits = ByteBits.GetBitArray(body);
 				}
 			
-				BloomFilter result = new BloomFilter(maxElements, hashesPerToken, elementsHashed, new BitArray(body));
-				return result;		
+				BloomFilter result = new BloomFilter(maxElements, hashesPerToken, elementsHashed, bits);
+				return result;
 			}
 			catch (Exception ex)
 			{

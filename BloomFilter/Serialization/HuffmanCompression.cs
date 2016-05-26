@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,9 +36,9 @@ namespace BloomFilterCore.Serialization
 			return result.ToArray();
 		}
 
-		public static bool[] Decode(IEnumerable<byte> bytes)
+		public static BitArray Decode(IEnumerable<byte> bytes)
 		{
-			if (bytes == null || bytes.Count() < 1) { return new bool[] { }; }
+			if (bytes == null || bytes.Count() < 1) { return new BitArray(0); }
 			List<bool> result = new List<bool>();
 
 			byte counter = 0;
@@ -53,7 +54,7 @@ namespace BloomFilterCore.Serialization
 				counter = 0;
 			}		
 
-			return result.ToArray();
+			return new BitArray(result.ToArray());
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace TestBloomFilter
 {
 	public partial class MainForm : Form
 	{
-		private bool IsFilterOpen;
+		private bool IsFilterOpen = false;
 		private Random rand;
 		private BloomFilter _filter;
 		private BackgroundWorker addHashesWorker;
@@ -46,37 +46,89 @@ namespace TestBloomFilter
 			addHashesWorker.RunWorkerCompleted += addHashesWorker_RunWorkerCompleted;
 		}
 
-		private void btnCreateFilter_Click(object sender, EventArgs e)
+		private int CalculateFilterSize(int hashElementCeiling, double probabilityFloor)
+		{
+			double top = hashElementCeiling * Math.Log(probabilityFloor);
+			double bottom = Math.Pow(Math.Log(2),2);
+
+			top = Math.Abs(top);
+			bottom = Math.Abs(bottom);
+
+			double dividend = top / bottom;
+			double result = Math.Round(dividend);
+
+			return (int)result;
+		}
+
+		private int CalculateHashesPerElement(int sizeOfArray, int quantityHashElements)
+		{
+			double rhs = sizeOfArray / quantityHashElements;
+			double hashesPerElement =  rhs * Math.Log(2);
+			
+			double result = Math.Round(Math.Abs(hashesPerElement));			
+			return (int)result;
+		}
+
+		private void btnCreateOrCloseFilter_Click(object sender, EventArgs e)
 		{
 			if (IsFilterOpen == false)
 			{
-				IsFilterOpen = true;
-				btnCreateFilter.Text = buttonText_CloseFilter;
+				int sizeOfArray = 0;
+				int hashElementQuantity = 0;
+				double errorProbabilityFloor = 0;
+				int hashesPerElement = 0;
+				
+				//int.TryParse(tbHashesPerElement.Text.Replace(",", ""), out hashesPerToken);
+				double.TryParse(tbErrorProbability.Text.Replace(",", ""), out errorProbabilityFloor);
+				int.TryParse(tbMaxNumberOfElements.Text.Replace(",", ""), out hashElementQuantity);
 
-				int maxElements = 0;
-				int hashesPerToken = 0;
-				int.TryParse(tbElements.Text.Replace(",", ""), out maxElements);
-				int.TryParse(tbHashes.Text.Replace(",", ""), out hashesPerToken);
+				sizeOfArray = CalculateFilterSize(hashElementQuantity, errorProbabilityFloor);
+				hashesPerElement = CalculateHashesPerElement(sizeOfArray, hashElementQuantity);
 
-				_filter = new BloomFilter(maxElements, hashesPerToken);
+				tbHashesPerElement.Text = hashesPerElement.ToString();
 
-				btnCreateFilter.BackColor = Color.MintCream;
-				btnCreateFilter.Text = buttonText_CreateFilter;
+				_filter = new BloomFilter(hashElementQuantity, hashesPerElement);
+
+				SetLoadedStatus(true);
 				RefreshControls();
 			}
 			else
 			{
-				btnCreateFilter.Text = buttonText_CreateFilter;
-				IsFilterOpen = false;
+				_filter = null;
+				SetLoadedStatus(false);
 			}
+		}
+
+		private void SetLoadedStatus(bool isLoaded)
+		{
+			IsFilterOpen = isLoaded;
+			if (IsFilterOpen)
+			{
+				btnCreateFilter.Text = buttonText_CloseFilter;				
+			}
+			else
+			{
+				btnCreateFilter.Text = buttonText_CreateFilter;
+				label1.Text = label2.Text = label3.Text = label4.Text = label5.Text = "";
+				label6.Text = label7.Text = label8.Text = label9.Text = "";
+				tbOutput.Clear();
+			}
+
+			btnOpenFilter.Enabled = !IsFilterOpen;
+			btnSaveFilter.Enabled = IsFilterOpen;
+			btnAddHashes.Enabled = IsFilterOpen;
+			btnTestHashes.Enabled = IsFilterOpen;
 		}
 
 		private void btnOpenFilter_Click(object sender, EventArgs e)
 		{
 			string file = OpenFileDlg();
-			if (!string.IsNullOrWhiteSpace(file))
+			if (!string.IsNullOrWhiteSpace(file) && File.Exists(file))
 			{
 				_filter = BloomFilterSerializer.Load(file);
+				tbMaxNumberOfElements.Text = _filter.MaxElements.ToString();
+				tbHashesPerElement.Text = _filter.HashesPerToken.ToString();
+				SetLoadedStatus(true);				
 				RefreshControls();
 			}
 		}
@@ -89,39 +141,26 @@ namespace TestBloomFilter
 				BloomFilterSerializer.Save(_filter, file);
 			}
 		}
-		
+
 		private void btnAddHashes_Click(object sender, EventArgs e)
 		{
+			if (_filter == null || addHashesWorker == null) { throw new ArgumentNullException(); }
 			if (addHashesWorker.IsBusy)
 			{
 				addHashesWorker.CancelAsync();
 				return;
 			}
-			string filename = "";
-			if (_filter == null || tbHashInput == null || string.IsNullOrWhiteSpace(tbHashInput.Text))
-			{
-				filename = OpenFileDlg();
-				//return;
-			}
+
+			string filename = OpenFileDlg();
 
 			if (string.IsNullOrWhiteSpace(filename)) { return; }
-			
-			btnAddHashes.Text = buttonText_Cancel;
+
 			filename = Path.GetFullPath(filename.Replace(",", ""));
 
-			if (filename.Contains('.')) // Treat as a filename to file of tokens to add to filter
+			if (File.Exists(filename))
 			{
-				if (File.Exists(filename))
-				{
-					if (!addHashesWorker.IsBusy)
-					{
-						addHashesWorker.RunWorkerAsync(filename);
-					}
-				}
-			}
-			else if (!string.IsNullOrWhiteSpace(filename)) // Treat as a token to add to the filter
-			{
-				_filter.Add(filename);
+				btnAddHashes.Text = buttonText_Cancel;
+				addHashesWorker.RunWorkerAsync(filename);
 			}
 		}
 
@@ -132,7 +171,7 @@ namespace TestBloomFilter
 				if (addHashesWorker.CancellationPending)
 				{
 					e.Cancel = true;
-					return;
+					break;
 				}
 				_filter.Add(line);
 				RefreshLabel();
@@ -140,35 +179,23 @@ namespace TestBloomFilter
 		}
 
 		void addHashesWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-		{		
-			//btnAddHashes.BackColor = Color.MintCream;	
+		{
 			btnAddHashes.Text = buttonText_AddHashes;
 			RefreshControls();
 		}
 
-		private void btnTest_Click(object sender, EventArgs e)
+		private void btnTestHashes_Click(object sender, EventArgs e)
 		{
-			string input = tbTestInput.Text.Replace(",", "");
-			if (!input.All(c => "0123456789".Contains(c)) || cbForceToken.Checked) // If a string (token)
+			string quantity = tbHashTestQuantity.Text.Replace(",", "");
+
+			string filename = OpenFileDlg();
+			if (!string.IsNullOrWhiteSpace(filename))
 			{
-				bool result = _filter.Query(input);
-				if (result)
-				{
-					tbTestInput.BackColor = Color.MintCream;// += " EXISTS";
-				}
-				else
-				{
-					tbTestInput.BackColor = Color.MistyRose;// += " DOES NOT EXIST";
-				}
-			}
-			else // If a number
-			{
-				string filename = OpenFileDlg();
 				string[] lines = File.ReadAllLines(filename);
 				int counter = 0;
 				int correct = 0;
 				int incorrect = 0;
-				int.TryParse(input, out counter);
+				int.TryParse(quantity, out counter);
 				int half = counter / 2;
 				while (--counter > 0)
 				{
@@ -178,8 +205,9 @@ namespace TestBloomFilter
 					{
 						int number = 1;
 						while (number % 2 != 0)
-						{ number = rand.Next(); }
-
+						{
+							number = rand.Next();
+						}
 						correctValue = false;
 						testNumber = number.ToString();
 					}
@@ -195,7 +223,6 @@ namespace TestBloomFilter
 				}
 				label8.Text = string.Format("Correct:   {0}", correct);
 				label9.Text = string.Format("Incorrect: {0}", incorrect);
-				btnTestHashing.BackColor = Color.MintCream;
 			}
 		}
 
@@ -209,6 +236,7 @@ namespace TestBloomFilter
 			label6.Text = string.Format("{0} IndexByteSize", _filter.IndexByteSize);
 			RefreshLabel();
 			showFilterOutput();
+			//tbOutput.AppendText(string.Concat(Environment.NewLine, Environment.NewLine, _filter.AsString()));			
 		}
 
 		private void RefreshLabel()
@@ -230,39 +258,11 @@ namespace TestBloomFilter
 			}
 		}
 
-		private void btnTest_Click_1(object sender, EventArgs e)
-		{
-			RefreshControls();
-		}
-
-		private void btnTestAbc_Click(object sender, EventArgs e)
-		{
-			int wrong = 0;
-			string testFile = OpenFileDlg();
-			if (string.IsNullOrWhiteSpace(testFile) || !File.Exists(testFile))
-			{
-				return;
-			}
-
-			string[] lines = File.ReadAllLines(testFile);
-			foreach (string line in lines)
-			{
-				if (_filter.Query(line))
-				{
-					wrong += 1;
-				}
-			}
-
-			int total = lines.Length;
-			double percent = (wrong * 100) / total;
-			tbOutput.Text += Environment.NewLine + string.Format("{0} out of {1} wrong ({2:0.00}%)", wrong, total, percent);
-		}
-		
 		private string OpenFileDlg()
 		{
 			using (OpenFileDialog openDlg = new OpenFileDialog())
 			{
-				if (openDlg.ShowDialog() == DialogResult.OK) 
+				if (openDlg.ShowDialog() == DialogResult.OK)
 				{
 					return openDlg.FileName;
 				}
@@ -274,7 +274,7 @@ namespace TestBloomFilter
 		{
 			using (SaveFileDialog saveDlg = new SaveFileDialog())
 			{
-				if (saveDlg.ShowDialog() == DialogResult.OK) 
+				if (saveDlg.ShowDialog() == DialogResult.OK)
 				{
 					return saveDlg.FileName;
 				}

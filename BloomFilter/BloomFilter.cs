@@ -26,7 +26,7 @@ namespace BloomFilterCore
 		internal BloomFilter(Int32 maxElements, Int32 hashesPerToken, Int32 elementsHashed, BitArray array)
 		{
 			if (maxElements < 1 || hashesPerToken < 1 || array == null || array.Length < 1) { throw new ArgumentException(); }
-						
+
 			this.HashesPerToken = hashesPerToken;
 			this.MaxElements = maxElements;
 			this.ElementsHashed = elementsHashed;
@@ -36,11 +36,8 @@ namespace BloomFilterCore
 
 		public BloomFilter(Int32 maxElements, Int32 hashesPerToken)
 		{
-			if (maxElements < 1 || hashesPerToken < 1)
-			{
-				throw new ArgumentException();
-			}
-			
+			if (maxElements < 1 || hashesPerToken < 1) { throw new ArgumentException(); }
+
 			this.HashesPerToken = hashesPerToken;
 			this.MaxElements = maxElements;
 
@@ -51,7 +48,6 @@ namespace BloomFilterCore
 			}
 
 			filterArray = new BitArray(SizeBits, false);
-
 			ElementsHashed = 0;
 		}
 
@@ -61,7 +57,7 @@ namespace BloomFilterCore
 
 			int maxIndex = filterArray.Length - 1;
 			using (BloomHash tokenHash = new BloomHash(token, IndexByteSize, maxIndex))
-			{				
+			{
 				IEnumerable<int> indices = tokenHash.GetIndices().Take(HashesPerToken).Where(i => !filterArray[i]);
 
 				foreach (int index in indices)
@@ -86,8 +82,7 @@ namespace BloomFilterCore
 			}
 			return true;
 		}
-
-
+		
 		public string AsString()
 		{
 			int chunk = (filterArray.Length / samples) - 1;
@@ -135,15 +130,16 @@ namespace BloomFilterCore
 
 		public string GetUtilization()
 		{
-			bool[] filterBits = filterArray.Cast<bool>().ToArray();
-			int trueBits = filterBits.Count(b => b);
-			int totalBits = filterArray.Length;
+			if (filterArray == null || filterArray.Length < 1) { throw new ArgumentNullException("filterArray"); }
+
 			decimal percent = 0;
-			if (totalBits != 0)
+			int maxBits = filterArray.Length;
+			int setBits = filterArray.Cast<bool>().Count(b => b);
+			if (setBits > 0)
 			{
-				percent = (trueBits * 100) / totalBits;
+				percent = (setBits * 100) / maxBits;
 			}
-			return string.Format("{0:0.00}% \t ({1} / {2})", percent, trueBits, totalBits);
+			return string.Format("{0:0.00}% \t ({1} / {2})", percent, setBits, maxBits);
 		}
 
 		public int[] GetActiveBitIndicies()
