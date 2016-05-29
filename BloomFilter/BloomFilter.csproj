@@ -79,15 +79,12 @@
     <Compile Include="BloomFilter.cs" />
     <Compile Include="BloomHash.cs" />
     <Compile Include="ByteBits.cs" />
-    <Compile Include="CoPrimes.cs" />
     <Compile Include="Hash.cs" />
-    <Compile Include="Hash2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Serialization\HuffmanCompression.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Serialization\BloomFilter.Serializer.cs" />
+    <Compile Include="BloomFilter.Serializer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

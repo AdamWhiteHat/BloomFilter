@@ -43,40 +43,7 @@ namespace BloomFilterCore
 			IsDisposed = false;
 			Shuffle(TableSize+1);
 		}
-
-		public Hash(int coPrime)
-			: this(256, coPrime)
-		{
-		}
-
-		public Hash(int tableSize, int coPrime)
-		{
-			if (!Coprimes.IsCoprime(tableSize, coPrime))
-			{
-				throw new ArgumentException(string.Format("coPrime must be co-prime to tableSize: {0}", tableSize));
-			}
-
-			Clear();
-			TableSize = tableSize;
-
-			int counter = 0;
-			int val = coPrime % tableSize;
-			List<byte> result = new List<byte>();
-			while (counter < 255)
-			{
-				val = val + coPrime;
-				if (val > TableSize)
-				{
-					val = val % TableSize;
-				}
-				result.Add((byte)(val));
-				counter += 1;
-			}
-			_table = result.ToArray();
-			IsDisposed = false;
-			Shuffle(TableSize + 1);
-		}
-
+		
 		public byte[] GetBytes(int quantity)
 		{
 			return GetBytes().Take(quantity).ToArray();
