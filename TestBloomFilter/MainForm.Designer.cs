@@ -40,8 +40,6 @@
 			this.label6 = new System.Windows.Forms.Label();
 			this.label7 = new System.Windows.Forms.Label();
 			this.btnTestHashes = new System.Windows.Forms.Button();
-			this.labelTests = new System.Windows.Forms.Label();
-			this.tbHashTestQuantity = new System.Windows.Forms.TextBox();
 			this.tbOutput = new System.Windows.Forms.TextBox();
 			this.label11 = new System.Windows.Forms.Label();
 			this.tbHashesPerElement = new System.Windows.Forms.TextBox();
@@ -53,10 +51,10 @@
 			this.tbErrorProbability = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			// 
-			// tbMaxNumberOfElements
+			// tbMaxElementsToHash
 			// 
 			this.tbMaxElementsToHash.Location = new System.Drawing.Point(409, 48);
-			this.tbMaxElementsToHash.Name = "tbMaxNumberOfElements";
+			this.tbMaxElementsToHash.Name = "tbMaxElementsToHash";
 			this.tbMaxElementsToHash.Size = new System.Drawing.Size(100, 20);
 			this.tbMaxElementsToHash.TabIndex = 0;
 			this.tbMaxElementsToHash.Text = "100,000";
@@ -161,28 +159,6 @@
 			this.btnTestHashes.Text = "Test Hashes";
 			this.btnTestHashes.UseVisualStyleBackColor = true;
 			this.btnTestHashes.Click += new System.EventHandler(this.btnTestHashes_Click);
-			// 
-			// labelTests
-			// 
-			this.labelTests.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.labelTests.AutoSize = true;
-			this.labelTests.Location = new System.Drawing.Point(351, 106);
-			this.labelTests.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
-			this.labelTests.Name = "labelTests";
-			this.labelTests.Size = new System.Drawing.Size(54, 13);
-			this.labelTests.TabIndex = 19;
-			this.labelTests.Text = "# of tests:";
-			this.labelTests.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// tbHashTestQuantity
-			// 
-			this.tbHashTestQuantity.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.tbHashTestQuantity.Location = new System.Drawing.Point(409, 103);
-			this.tbHashTestQuantity.Name = "tbHashTestQuantity";
-			this.tbHashTestQuantity.Size = new System.Drawing.Size(101, 20);
-			this.tbHashTestQuantity.TabIndex = 18;
-			this.tbHashTestQuantity.Text = "100";
-			this.tbHashTestQuantity.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// tbOutput
 			// 
@@ -290,8 +266,6 @@
 			this.Controls.Add(this.label11);
 			this.Controls.Add(this.tbHashesPerElement);
 			this.Controls.Add(this.tbOutput);
-			this.Controls.Add(this.labelTests);
-			this.Controls.Add(this.tbHashTestQuantity);
 			this.Controls.Add(this.label9);
 			this.Controls.Add(this.label8);
 			this.Controls.Add(this.btnTestHashes);
@@ -328,8 +302,6 @@
 		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.Button btnTestHashes;
-		private System.Windows.Forms.Label labelTests;
-		private System.Windows.Forms.TextBox tbHashTestQuantity;
 		private System.Windows.Forms.TextBox tbOutput;
 		private System.Windows.Forms.Label label11;
 		private System.Windows.Forms.TextBox tbHashesPerElement;

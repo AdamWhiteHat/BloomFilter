@@ -10,17 +10,20 @@ namespace BloomFilterCore
 {
 	public partial class BloomFilter
 	{
-		public Int32 MaxElements;
+		public Int32 MaxElements { get; private set; }
+		public Int32 ElementsHashed { get; private set; }
+		public Int32 HashesPerElement { get; private set; }
+
+		// Read-only properties
 		public int SizeBits { get { return MaxElements; } }
 		public int SizeBytes { get { return SizeBits / 8; } }
 		public int SizeKB { get { return SizeBits / 8192; } }
 		public int SizeMB { get { return SizeBits / 8388608; } }
 		public double IndexBitSize { get { return Math.Log(SizeBits, 2); } }
 		public int IndexByteSize { get { return (int)Math.Ceiling(IndexBitSize / 8); } }
-		public Int32 ElementsHashed { get; private set; }
-		public Int32 HashesPerElement { get; private set; }
 
-		internal BitArray filterArray;
+		internal BitArray filterArray { get { return _filterArray; } }
+		private BitArray _filterArray;
 		private int samples = 100;
 
 		internal BloomFilter(Int32 maxElements, Int32 hashesPerToken, Int32 elementsHashed, BitArray array)
@@ -31,7 +34,7 @@ namespace BloomFilterCore
 			this.MaxElements = maxElements;
 			this.ElementsHashed = elementsHashed;
 
-			filterArray = new BitArray(array);
+			_filterArray = new BitArray(array);
 		}
 
 		public BloomFilter(Int32 maxElementsToHash, double errorProbabilityFloor)
@@ -50,7 +53,7 @@ namespace BloomFilterCore
 				this.MaxElements += 1;
 			}
 
-			filterArray = new BitArray(SizeBits, false);
+			_filterArray = new BitArray(SizeBits, false);
 			ElementsHashed = 0;
 		}
 
@@ -81,14 +84,14 @@ namespace BloomFilterCore
 		{
 			if (string.IsNullOrEmpty(token)) { throw new ArgumentNullException("token"); }
 
-			int maxIndex = filterArray.Length - 1;
+			int maxIndex = _filterArray.Length - 1;
 			using (BloomHash tokenHash = new BloomHash(token, IndexByteSize, maxIndex))
 			{
-				IEnumerable<int> indices = tokenHash.GetIndices().Take(HashesPerElement).Where(i => !filterArray[i]);
+				IEnumerable<int> indices = tokenHash.GetIndices().Take(HashesPerElement).Where(i => !_filterArray[i]);
 
 				foreach (int index in indices)
 				{
-					filterArray[index] = true;
+					_filterArray[index] = true;
 				}
 			}
 			ElementsHashed += 1;
@@ -98,10 +101,10 @@ namespace BloomFilterCore
 		{
 			if (string.IsNullOrEmpty(token)) { throw new ArgumentNullException("token"); }
 
-			int maxIndex = filterArray.Length - 1;
+			int maxIndex = _filterArray.Length - 1;
 			using (BloomHash tokenHash = new BloomHash(token, IndexByteSize, maxIndex))
 			{
-				if (tokenHash.GetIndices().Take(HashesPerElement).Any(i => !filterArray[i]))
+				if (tokenHash.GetIndices().Take(HashesPerElement).Any(i => !_filterArray[i]))
 				{
 					return false;
 				}
@@ -111,14 +114,14 @@ namespace BloomFilterCore
 		
 		public string AsString()
 		{
-			int chunk = (filterArray.Length / samples) - 1;
-			bool[] filterBits = filterArray.Cast<bool>().ToArray();
+			int chunk = (_filterArray.Length / samples) - 1;
+			bool[] filterBits = _filterArray.Cast<bool>().ToArray();
 
 			int index = 0;
 			int counter = samples;
 			StringBuilder result = new StringBuilder();
 			List<string> density = new List<string>();
-			while (index < filterArray.Length - 1)
+			while (index < _filterArray.Length - 1)
 			{
 				density.Add(string.Format("{0,2}", filterBits.Skip(index).Take(chunk).Count(b => b)));
 				//result.Append(filterBits[index]?'1':'0');				
@@ -156,11 +159,11 @@ namespace BloomFilterCore
 
 		public string GetUtilization()
 		{
-			if (filterArray == null || filterArray.Length < 1) { throw new ArgumentNullException("filterArray"); }
+			if (_filterArray == null || _filterArray.Length < 1) { throw new ArgumentNullException("filterArray"); }
 
 			decimal percent = 0;
-			int maxBits = filterArray.Length;
-			int setBits = filterArray.Cast<bool>().Count(b => b);
+			int maxBits = _filterArray.Length;
+			int setBits = _filterArray.Cast<bool>().Count(b => b);
 			if (setBits > 0)
 			{
 				percent = (setBits * 100) / maxBits;
@@ -172,7 +175,7 @@ namespace BloomFilterCore
 		{
 			int index = 0;
 			List<int> result = new List<int>();
-			List<bool> bitList = filterArray.Cast<bool>().ToList();
+			List<bool> bitList = _filterArray.Cast<bool>().ToList();
 			while (true)
 			{
 				int i = bitList.IndexOf(true, index);

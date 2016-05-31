@@ -16,13 +16,14 @@ namespace TestBloomFilter
 	public partial class MainForm : Form
 	{
 		private bool IsFilterOpen = false;
-		private Random rand;
-		private BloomFilter _filter;
+		private BloomFilter filter;
 		private BackgroundWorker addHashesWorker;
-		private static string buttonText_AddHashes = "Add Hashes";
-		private static string buttonText_Cancel = "Cancel";
-		private static string buttonText_CreateFilter = "Create Filter";
-		private static string buttonText_CloseFilter = "Close Filter";
+
+		// Static readonly strings 
+		private static readonly string buttonText_AddHashes = "Add Hashes";
+		private static readonly string buttonText_Cancel = "Cancel";
+		private static readonly string buttonText_CreateFilter = "Create Filter";
+		private static readonly string buttonText_CloseFilter = "Close Filter";
 
 		public MainForm()
 		{
@@ -31,43 +32,36 @@ namespace TestBloomFilter
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
+			filter = null;
 			IsFilterOpen = false;
-			_filter = null;
-			rand = new Random();
-			int counter = rand.Next(100, 200);
-			while (--counter > 0)
-			{
-				rand.Next();
-			}
-
+			
 			addHashesWorker = new BackgroundWorker();
 			addHashesWorker.WorkerSupportsCancellation = true;
 			addHashesWorker.DoWork += addHashesWorker_DoWork;
 			addHashesWorker.RunWorkerCompleted += addHashesWorker_RunWorkerCompleted;
 		}
-
-
-
+		
 		private void btnCreateOrCloseFilter_Click(object sender, EventArgs e)
 		{
 			if (IsFilterOpen == false)
-			{				
+			{
 				int maxElementsToHash = 0;
-				double errorProbabilityFloor = 0;				
-				
+				double errorProbabilityFloor = 0;
+
 				double.TryParse(tbErrorProbability.Text.Replace(",", ""), out errorProbabilityFloor);
 				int.TryParse(tbMaxElementsToHash.Text.Replace(",", ""), out maxElementsToHash);
-				
-				_filter = new BloomFilter(maxElementsToHash, errorProbabilityFloor);
 
-				tbHashesPerElement.Text = _filter.HashesPerElement.ToString();
+				filter = new BloomFilter(maxElementsToHash, errorProbabilityFloor);
+
+				tbMaxElementsToHash.Text = filter.MaxElements.ToString();
+				tbHashesPerElement.Text = filter.HashesPerElement.ToString();
 
 				SetLoadedStatus(true);
 				RefreshControls();
 			}
 			else
 			{
-				_filter = null;
+				filter = null;
 				SetLoadedStatus(false);
 			}
 		}
@@ -77,7 +71,7 @@ namespace TestBloomFilter
 			IsFilterOpen = isLoaded;
 			if (IsFilterOpen)
 			{
-				btnCreateFilter.Text = buttonText_CloseFilter;				
+				btnCreateFilter.Text = buttonText_CloseFilter;
 			}
 			else
 			{
@@ -98,10 +92,10 @@ namespace TestBloomFilter
 			string file = OpenFileDlg();
 			if (!string.IsNullOrWhiteSpace(file) && File.Exists(file))
 			{
-				_filter = BloomFilterSerializer.Load(file);
-				tbMaxElementsToHash.Text = _filter.MaxElements.ToString();
-				tbHashesPerElement.Text = _filter.HashesPerElement.ToString();
-				SetLoadedStatus(true);				
+				filter = BloomFilterSerializer.Load(file);
+				tbMaxElementsToHash.Text = filter.MaxElements.ToString();
+				tbHashesPerElement.Text = filter.HashesPerElement.ToString();
+				SetLoadedStatus(true);
 				RefreshControls();
 			}
 		}
@@ -111,13 +105,13 @@ namespace TestBloomFilter
 			string file = SaveFileDlg();
 			if (!string.IsNullOrWhiteSpace(file))
 			{
-				BloomFilterSerializer.Save(_filter, file);
+				BloomFilterSerializer.Save(filter, file);
 			}
 		}
 
 		private void btnAddHashes_Click(object sender, EventArgs e)
 		{
-			if (_filter == null || addHashesWorker == null) { throw new ArgumentNullException(); }
+			if (filter == null || addHashesWorker == null) { throw new ArgumentNullException(); }
 			if (addHashesWorker.IsBusy)
 			{
 				addHashesWorker.CancelAsync();
@@ -128,7 +122,7 @@ namespace TestBloomFilter
 
 			if (string.IsNullOrWhiteSpace(filename)) { return; }
 
-			filename = Path.GetFullPath(filename.Replace(",", ""));
+			filename = Path.GetFullPath(filename);
 
 			if (File.Exists(filename))
 			{
@@ -137,21 +131,22 @@ namespace TestBloomFilter
 			}
 		}
 
-		void addHashesWorker_DoWork(object sender, DoWorkEventArgs e)
+		private void addHashesWorker_DoWork(object sender, DoWorkEventArgs e)
 		{
-			foreach (string line in File.ReadAllLines((string)e.Argument))
+			string[] lines = File.ReadAllLines((string)e.Argument);
+			foreach (string line in lines)
 			{
 				if (addHashesWorker.CancellationPending)
 				{
 					e.Cancel = true;
 					break;
 				}
-				_filter.Add(line);
+				filter.Add(line);
 				RefreshLabel();
 			}
 		}
 
-		void addHashesWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		private void addHashesWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			btnAddHashes.Text = buttonText_AddHashes;
 			RefreshControls();
@@ -159,40 +154,27 @@ namespace TestBloomFilter
 
 		private void btnTestHashes_Click(object sender, EventArgs e)
 		{
-			string quantity = tbHashTestQuantity.Text.Replace(",", "");
-
 			string filename = OpenFileDlg();
 			if (!string.IsNullOrWhiteSpace(filename))
 			{
 				string[] lines = File.ReadAllLines(filename);
+								
 				int counter = 0;
+				int max = lines.Length - 1;
+
 				int correct = 0;
 				int incorrect = 0;
-				int.TryParse(quantity, out counter);
-				int half = counter / 2;
-				while (--counter > 0)
+
+				while (counter++ < max)
 				{
-					string testNumber = "";
-					bool correctValue = false;
-					if (counter > half)
+					if (filter.Query(lines[counter]))
 					{
-						int number = 1;
-						while (number % 2 != 0)
-						{
-							number = rand.Next();
-						}
-						correctValue = false;
-						testNumber = number.ToString();
+						correct += 1;
 					}
 					else
 					{
-						correctValue = true;
-						testNumber = lines[rand.Next(0, lines.Length)];
+						incorrect += 1;
 					}
-
-					bool queryResult = _filter.Query(testNumber);
-					if (queryResult == correctValue) correct += 1;
-					else incorrect += 1;
 				}
 				label8.Text = string.Format("Correct:   {0}", correct);
 				label9.Text = string.Format("Incorrect: {0}", incorrect);
@@ -201,15 +183,20 @@ namespace TestBloomFilter
 
 		private void RefreshControls()
 		{
-			label1.Text = string.Format("{0} bits", _filter.SizeBits);
-			label2.Text = string.Format("{0} B", _filter.SizeBytes);
-			label3.Text = string.Format("{0} KB", _filter.SizeKB);
-			label4.Text = string.Format("{0} MB", _filter.SizeMB);
-			label5.Text = string.Format("{0} IndexBitSize", _filter.IndexBitSize);
-			label6.Text = string.Format("{0} IndexByteSize", _filter.IndexByteSize);
-			RefreshLabel();
-			showFilterOutput();
-			//tbOutput.AppendText(string.Concat(Environment.NewLine, Environment.NewLine, _filter.AsString()));			
+			if (filter == null) { return; }
+			if (this.InvokeRequired) { this.Invoke(new MethodInvoker(() => RefreshControls())); return; }
+			else
+			{
+				label1.Text = string.Format("{0} bits", filter.SizeBits);
+				label2.Text = string.Format("{0} B", filter.SizeBytes);
+				label3.Text = string.Format("{0} KB", filter.SizeKB);
+				label4.Text = string.Format("{0} MB", filter.SizeMB);
+				label5.Text = string.Format("{0} IndexBitSize", filter.IndexBitSize);
+				label6.Text = string.Format("{0} IndexByteSize", filter.IndexByteSize);
+				RefreshLabel();
+				tbOutput.Text = filter.GetUtilization();
+				//tbOutput.AppendText(string.Concat(Environment.NewLine, Environment.NewLine, _filter.AsString()));
+			}
 		}
 
 		private void RefreshLabel()
@@ -217,17 +204,7 @@ namespace TestBloomFilter
 			if (this.InvokeRequired) { this.Invoke(new MethodInvoker(() => RefreshLabel())); return; }
 			else
 			{
-				label7.Text = string.Concat(_filter.ElementsHashed.ToString(), " ElementsHashed");
-			}
-		}
-
-		private void showFilterOutput()
-		{
-			if (_filter == null) { return; }
-			if (this.InvokeRequired) { this.Invoke(new MethodInvoker(() => showFilterOutput())); return; }
-			else
-			{
-				tbOutput.Text = _filter.GetUtilization();
+				label7.Text = string.Concat(filter.ElementsHashed.ToString(), " ElementsHashed");
 			}
 		}
 

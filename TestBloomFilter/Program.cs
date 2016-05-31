@@ -13,9 +13,6 @@ namespace TestBloomFilter
 
 	internal static class Program
 	{
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
 		[STAThread]
 		internal static void Main()
 		{
@@ -26,8 +23,8 @@ namespace TestBloomFilter
 			Application.Run(new MainForm());
 		}
 
-		private static string ExceptionLogFilename = Settings.Output_Filename;
-		private static string ExceptionLogTimestamp = "yyyy'-'MM'-'dd @ HH':'mm':'ss tt";		
+		private static readonly string ExceptionLogFilename = Settings.Output_Filename;
+		private static readonly string ExceptionLogTimestamp = "yyyy'-'MM'-'dd @ HH':'mm':'ss tt";		
 
 		private static void LogExceptionInformation(Exception ex)
 		{

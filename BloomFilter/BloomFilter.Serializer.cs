@@ -14,46 +14,18 @@ namespace BloomFilterCore.Serialization
 {
 	public class BloomFilterSerializer
 	{
-		public static void WriteCompressedFile(string filename, byte[] data)
-		{
-			using (FileStream fileStream = File.Create(filename))
-			{
-				using (DeflateStream compressStream = new DeflateStream(fileStream, CompressionMode.Compress))
-				{
-					using (BinaryWriter binaryWriter = new BinaryWriter(compressStream))
-					{
-						binaryWriter.Write(data);
-						binaryWriter.Flush();
-					}
-				}
-			}
-		}
-
-		public static byte[] ReadCompressedFile(string filename)
-		{
-			using (FileStream fileStream = File.OpenRead(filename))
-			{
-				using (DeflateStream deflateStream = new DeflateStream(fileStream, CompressionMode.Decompress))
-				{
-					using (BinaryReader binaryReader = new BinaryReader(deflateStream))
-					{
-						return binaryReader.ReadBytes((int)fileStream.Length);
-					}
-				}
-			}
-		}
-
 		public static void Save(BloomFilter filter, string filename)
 		{
 			if (string.IsNullOrWhiteSpace(filename)) { return; }
 
 			try
-			{
+			{		
 				// Header
 				List<byte> header = new List<byte>();
 				header.AddRange(BitConverter.GetBytes(filter.MaxElements));
 				header.AddRange(BitConverter.GetBytes(filter.HashesPerElement));
 				header.AddRange(BitConverter.GetBytes(filter.ElementsHashed));
+				
 				// Body
 				byte[] body = ByteBits.GetBytes(filter.filterArray);
 
@@ -90,6 +62,8 @@ namespace BloomFilterCore.Serialization
 
 			try
 			{
+				int bitsPerInt = 4;
+				int headerSize = bitsPerInt * 3;
 				List<byte> input = new List<byte>();
 				if (Settings.Output_Compress)
 				{
@@ -99,15 +73,14 @@ namespace BloomFilterCore.Serialization
 				{
 					input.AddRange(File.ReadAllBytes(filename));
 				}
-
-				int bitsPerInt = 4;
-
-				byte[] header = input.Take(bitsPerInt * 3).ToArray();
+							
+				byte[] header = input.Take(headerSize).ToArray();
 				Int32 maxElements = BitConverter.ToInt32(header, bitsPerInt * 0);
 				Int32 hashesPerToken = BitConverter.ToInt32(header, bitsPerInt * 1);
 				Int32 elementsHashed = BitConverter.ToInt32(header, bitsPerInt * 2);
 
-				byte[] body = input.Skip(bitsPerInt * 3).ToArray();
+				byte[] body = input.Skip(headerSize).ToArray();
+				
 				Array.Reverse(body);
 				BitArray bits = new BitArray(body);
 
@@ -120,6 +93,48 @@ namespace BloomFilterCore.Serialization
 				string stackTrace = ex.StackTrace;
 				string targetSite = ex.TargetSite.Name;
 				return null;
+			}
+		}
+
+		private static void WriteCompressedFile(string filename, byte[] data)
+		{
+			using (FileStream fileStream = File.Create(filename))
+			{
+				using (DeflateStream compressStream = new DeflateStream(fileStream, CompressionMode.Compress))
+				{
+					using (BinaryWriter binaryWriter = new BinaryWriter(compressStream))
+					{
+						binaryWriter.Write(data);
+						binaryWriter.Flush();
+					}
+				}
+			}
+		}
+
+		private static byte[] ReadCompressedFile(string filename)
+		{
+			using (FileStream fileStream = File.OpenRead(filename))
+			{
+				using (DeflateStream deflateStream = new DeflateStream(fileStream, CompressionMode.Decompress))
+				{
+					using (BinaryReader binaryReader = new BinaryReader(deflateStream))
+					{
+						List<byte> result = new List<byte>();
+						byte[] buffer;
+
+						do
+						{
+							buffer = binaryReader.ReadBytes(1024);
+							if (buffer.Length > 0)
+							{
+								result.AddRange(buffer);
+							}
+						}
+						while (buffer.Length > 0);
+
+						return result.ToArray();
+					}
+				}
 			}
 		}
 	}
