@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.tbMaxNumberOfElements = new System.Windows.Forms.TextBox();
+			this.tbMaxElementsToHash = new System.Windows.Forms.TextBox();
 			this.labelElements = new System.Windows.Forms.Label();
 			this.btnCreateFilter = new System.Windows.Forms.Button();
 			this.btnAddHashes = new System.Windows.Forms.Button();
@@ -55,12 +55,12 @@
 			// 
 			// tbMaxNumberOfElements
 			// 
-			this.tbMaxNumberOfElements.Location = new System.Drawing.Point(409, 48);
-			this.tbMaxNumberOfElements.Name = "tbMaxNumberOfElements";
-			this.tbMaxNumberOfElements.Size = new System.Drawing.Size(100, 20);
-			this.tbMaxNumberOfElements.TabIndex = 0;
-			this.tbMaxNumberOfElements.Text = "100,000";
-			this.tbMaxNumberOfElements.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.tbMaxElementsToHash.Location = new System.Drawing.Point(409, 48);
+			this.tbMaxElementsToHash.Name = "tbMaxNumberOfElements";
+			this.tbMaxElementsToHash.Size = new System.Drawing.Size(100, 20);
+			this.tbMaxElementsToHash.TabIndex = 0;
+			this.tbMaxElementsToHash.Text = "100,000";
+			this.tbMaxElementsToHash.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// labelElements
 			// 
@@ -213,6 +213,7 @@
 			// 
 			this.tbHashesPerElement.Location = new System.Drawing.Point(409, 4);
 			this.tbHashesPerElement.Name = "tbHashesPerElement";
+			this.tbHashesPerElement.ReadOnly = true;
 			this.tbHashesPerElement.Size = new System.Drawing.Size(55, 20);
 			this.tbHashesPerElement.TabIndex = 24;
 			this.tbHashesPerElement.Text = "0";
@@ -304,7 +305,7 @@
 			this.Controls.Add(this.btnAddHashes);
 			this.Controls.Add(this.btnCreateFilter);
 			this.Controls.Add(this.labelElements);
-			this.Controls.Add(this.tbMaxNumberOfElements);
+			this.Controls.Add(this.tbMaxElementsToHash);
 			this.Name = "MainForm";
 			this.Text = "Bloom Filter";
 			this.Load += new System.EventHandler(this.MainForm_Load);
@@ -315,7 +316,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.TextBox tbMaxNumberOfElements;
+		private System.Windows.Forms.TextBox tbMaxElementsToHash;
 		private System.Windows.Forms.Label labelElements;
 		private System.Windows.Forms.Button btnCreateFilter;
 		private System.Windows.Forms.Button btnAddHashes;

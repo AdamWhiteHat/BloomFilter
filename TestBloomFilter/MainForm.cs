@@ -46,48 +46,21 @@ namespace TestBloomFilter
 			addHashesWorker.RunWorkerCompleted += addHashesWorker_RunWorkerCompleted;
 		}
 
-		private int CalculateFilterSize(int hashElementCeiling, double probabilityFloor)
-		{
-			double top = hashElementCeiling * Math.Log(probabilityFloor);
-			double bottom = Math.Pow(Math.Log(2),2);
 
-			top = Math.Abs(top);
-			bottom = Math.Abs(bottom);
-
-			double dividend = top / bottom;
-			double result = Math.Round(dividend);
-
-			return (int)result;
-		}
-
-		private int CalculateHashesPerElement(int sizeOfArray, int quantityHashElements)
-		{
-			double rhs = sizeOfArray / quantityHashElements;
-			double hashesPerElement =  rhs * Math.Log(2);
-			
-			double result = Math.Round(Math.Abs(hashesPerElement));			
-			return (int)result;
-		}
 
 		private void btnCreateOrCloseFilter_Click(object sender, EventArgs e)
 		{
 			if (IsFilterOpen == false)
-			{
-				int sizeOfArray = 0;
-				int hashElementQuantity = 0;
-				double errorProbabilityFloor = 0;
-				int hashesPerElement = 0;
+			{				
+				int maxElementsToHash = 0;
+				double errorProbabilityFloor = 0;				
 				
-				//int.TryParse(tbHashesPerElement.Text.Replace(",", ""), out hashesPerToken);
 				double.TryParse(tbErrorProbability.Text.Replace(",", ""), out errorProbabilityFloor);
-				int.TryParse(tbMaxNumberOfElements.Text.Replace(",", ""), out hashElementQuantity);
+				int.TryParse(tbMaxElementsToHash.Text.Replace(",", ""), out maxElementsToHash);
+				
+				_filter = new BloomFilter(maxElementsToHash, errorProbabilityFloor);
 
-				sizeOfArray = CalculateFilterSize(hashElementQuantity, errorProbabilityFloor);
-				hashesPerElement = CalculateHashesPerElement(sizeOfArray, hashElementQuantity);
-
-				tbHashesPerElement.Text = hashesPerElement.ToString();
-
-				_filter = new BloomFilter(hashElementQuantity, hashesPerElement);
+				tbHashesPerElement.Text = _filter.HashesPerElement.ToString();
 
 				SetLoadedStatus(true);
 				RefreshControls();
@@ -126,8 +99,8 @@ namespace TestBloomFilter
 			if (!string.IsNullOrWhiteSpace(file) && File.Exists(file))
 			{
 				_filter = BloomFilterSerializer.Load(file);
-				tbMaxNumberOfElements.Text = _filter.MaxElements.ToString();
-				tbHashesPerElement.Text = _filter.HashesPerToken.ToString();
+				tbMaxElementsToHash.Text = _filter.MaxElements.ToString();
+				tbHashesPerElement.Text = _filter.HashesPerElement.ToString();
 				SetLoadedStatus(true);				
 				RefreshControls();
 			}
@@ -230,8 +203,8 @@ namespace TestBloomFilter
 		{
 			label1.Text = string.Format("{0} bits", _filter.SizeBits);
 			label2.Text = string.Format("{0} B", _filter.SizeBytes);
-			label3.Text = string.Format("{0} MB", _filter.SizeMB);
-			label4.Text = string.Format("{0} KB", _filter.SizeKB);
+			label3.Text = string.Format("{0} KB", _filter.SizeKB);
+			label4.Text = string.Format("{0} MB", _filter.SizeMB);
 			label5.Text = string.Format("{0} IndexBitSize", _filter.IndexBitSize);
 			label6.Text = string.Format("{0} IndexByteSize", _filter.IndexByteSize);
 			RefreshLabel();

@@ -18,7 +18,7 @@ namespace BloomFilterCore
 		public double IndexBitSize { get { return Math.Log(SizeBits, 2); } }
 		public int IndexByteSize { get { return (int)Math.Ceiling(IndexBitSize / 8); } }
 		public Int32 ElementsHashed { get; private set; }
-		public Int32 HashesPerToken { get; private set; }
+		public Int32 HashesPerElement { get; private set; }
 
 		internal BitArray filterArray;
 		private int samples = 100;
@@ -27,19 +27,22 @@ namespace BloomFilterCore
 		{
 			if (maxElements < 1 || hashesPerToken < 1 || array == null || array.Length < 1) { throw new ArgumentException(); }
 
-			this.HashesPerToken = hashesPerToken;
+			this.HashesPerElement = hashesPerToken;
 			this.MaxElements = maxElements;
 			this.ElementsHashed = elementsHashed;
 
 			filterArray = new BitArray(array);
 		}
 
-		public BloomFilter(Int32 maxElements, Int32 hashesPerToken)
+		public BloomFilter(Int32 maxElementsToHash, double errorProbabilityFloor)
 		{
-			if (maxElements < 1 || hashesPerToken < 1) { throw new ArgumentException(); }
+			if (maxElementsToHash < 1 || errorProbabilityFloor < 0) { throw new ArgumentException(); }
 
-			this.HashesPerToken = hashesPerToken;
-			this.MaxElements = maxElements;
+			int sizeOfArray = CalculateFilterSize(maxElementsToHash, errorProbabilityFloor);
+			int hashesPerElement = CalculateHashesPerElement(sizeOfArray, maxElementsToHash);
+
+			this.HashesPerElement = hashesPerElement;
+			this.MaxElements = maxElementsToHash;
 
 			// Increases MaxElements until divisible by 8
 			while (SizeBits % 2 != 0 && SizeBits % 4 != 0 && SizeBits % 8 != 0)
@@ -51,14 +54,37 @@ namespace BloomFilterCore
 			ElementsHashed = 0;
 		}
 
+		private int CalculateFilterSize(int elementsToHashCeiling, double probabilityFloor)
+		{
+			double top = elementsToHashCeiling * Math.Log(probabilityFloor);
+			double bottom = Math.Pow(Math.Log(2), 2);
+
+			top = Math.Abs(top);
+			bottom = Math.Abs(bottom);
+
+			double dividend = top / bottom;
+			double result = Math.Round(dividend);
+
+			return (int)result;
+		}
+
+		private int CalculateHashesPerElement(int sizeOfArray, int maxElementsToHash)
+		{
+			double rhs = sizeOfArray / maxElementsToHash;
+			double hashesPerElement = rhs * Math.Log(2);
+
+			double result = Math.Round(Math.Abs(hashesPerElement));
+			return (int)result;
+		}
+
 		public void Add(string token)
 		{
-			if (string.IsNullOrEmpty(token)) { return; }
+			if (string.IsNullOrEmpty(token)) { throw new ArgumentNullException("token"); }
 
 			int maxIndex = filterArray.Length - 1;
 			using (BloomHash tokenHash = new BloomHash(token, IndexByteSize, maxIndex))
 			{
-				IEnumerable<int> indices = tokenHash.GetIndices().Take(HashesPerToken).Where(i => !filterArray[i]);
+				IEnumerable<int> indices = tokenHash.GetIndices().Take(HashesPerElement).Where(i => !filterArray[i]);
 
 				foreach (int index in indices)
 				{
@@ -75,7 +101,7 @@ namespace BloomFilterCore
 			int maxIndex = filterArray.Length - 1;
 			using (BloomHash tokenHash = new BloomHash(token, IndexByteSize, maxIndex))
 			{
-				if (tokenHash.GetIndices().Take(HashesPerToken).Any(i => !filterArray[i]))
+				if (tokenHash.GetIndices().Take(HashesPerElement).Any(i => !filterArray[i]))
 				{
 					return false;
 				}
