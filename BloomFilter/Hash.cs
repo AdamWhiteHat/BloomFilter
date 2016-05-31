@@ -12,12 +12,22 @@ namespace BloomFilterCore
 	{
 		public int TableSize { get; private set; }
 		public bool IsDisposed { get; private set; }
-	
+
 		private byte i;
 		private byte j;
 		private byte l;
 		private byte[] _table;
+		private int shuffleRounds = 3;
 		private byte k { get { unchecked { l = (byte)(_table[i] + _table[j]); return _table[l]; } } }
+
+		public byte this[int index]
+		{
+			get
+			{
+				CheckDisposed();
+				return _table[index];
+			}
+		}
 
 		public Hash()
 		{
@@ -31,40 +41,9 @@ namespace BloomFilterCore
 			}
 			_table = result.ToArray();
 			IsDisposed = false;
+			Shuffle(TableSize+1);
 		}
-
-		public Hash(int coPrime)
-			: this(256, coPrime)
-		{
-		}
-
-		public Hash(int tableSize, int coPrime)
-		{
-			if (!Coprimes.IsCoprime(tableSize, coPrime))
-			{
-				throw new ArgumentException(string.Format("coPrime must be co-prime to tableSize: {0}",tableSize));
-			}
-
-			Clear();
-			TableSize = tableSize;
-
-			int counter = 0;
-			int val = coPrime % tableSize ;
-			List<byte> result = new List<byte>();
-			while (counter < 255)
-			{				
-				val = val + coPrime;
-				if (val > TableSize)
-				{
-					val = val % TableSize;
-				}
-				result.Add((byte)(val));
-				counter+=1;
-			}
-			_table = result.ToArray();
-			IsDisposed = false;
-		}
-							
+		
 		public byte[] GetBytes(int quantity)
 		{
 			return GetBytes().Take(quantity).ToArray();
@@ -72,9 +51,10 @@ namespace BloomFilterCore
 
 		public IEnumerable<byte> GetBytes()
 		{
+			CheckDisposed();
 			while (!IsDisposed)
 			{
-				Shuffle(TableSize);
+				Shuffle(shuffleRounds);
 				yield return k;
 			}
 			yield break;
@@ -82,7 +62,7 @@ namespace BloomFilterCore
 
 		protected void Shuffle(int rounds)
 		{
-			if (IsDisposed) { throw new ObjectDisposedException(this.GetType().Name); }
+			CheckDisposed();
 
 			int counter = rounds;
 			unchecked // Just roll over on overflow. This is essentially mod 256, since everything is a byte
@@ -96,9 +76,41 @@ namespace BloomFilterCore
 			}
 		}
 
+		private void swapIandJ()
+		{
+			l = _table[i];
+			_table[i] = _table[j];
+			_table[j] = l;
+		}
+
+		protected void Clear()
+		{
+			i = 0;
+			j = 0;
+			l = 0;
+			_table = null;
+		}
+		
+		protected void CheckDisposed()
+		{
+			if (IsDisposed) 
+			{ 
+				throw new ObjectDisposedException(this.GetType().Name);
+			}
+		}
+
+		public void Dispose()
+		{
+			if (!IsDisposed)
+			{
+				Clear();
+				IsDisposed = true;
+			}
+		}
+
 		public override string ToString()
 		{
-			if (IsDisposed) { throw new ObjectDisposedException(this.GetType().Name); }
+			CheckDisposed();
 
 			int m = 0; int n = 0;
 			StringBuilder result = new StringBuilder();
@@ -119,30 +131,6 @@ namespace BloomFilterCore
 				m += 16;
 			}
 			return result.ToString();
-		}
-
-		private void swapIandJ()
-		{
-			l = _table[i];
-			_table[i] = _table[j];
-			_table[j] = l;
-		}
-
-		protected void Clear()
-		{
-			i = 0;
-			j = 0;
-			l = 0;
-			_table = null;
-		}
-
-		public void Dispose()
-		{
-			if (!IsDisposed)
-			{
-				Clear();
-				IsDisposed = true;
-			}
 		}
 	}
 }

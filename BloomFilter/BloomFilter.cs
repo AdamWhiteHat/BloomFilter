@@ -8,125 +8,107 @@ using System.Threading.Tasks;
 
 namespace BloomFilterCore
 {
-	public class BloomFilter
+	public partial class BloomFilter
 	{
-		public int MaxElements;
+		public Int32 MaxElements;
 		public int SizeBits { get { return MaxElements; } }
 		public int SizeBytes { get { return SizeBits / 8; } }
 		public int SizeKB { get { return SizeBits / 8192; } }
 		public int SizeMB { get { return SizeBits / 8388608; } }
 		public double IndexBitSize { get { return Math.Log(SizeBits, 2); } }
 		public int IndexByteSize { get { return (int)Math.Ceiling(IndexBitSize / 8); } }
-		public int ElementsHashed { get; private set; }
-		public int HashesPerToken { get; private set; }
+		public Int32 ElementsHashed { get; private set; }
+		public Int32 HashesPerElement { get; private set; }
 
-		private BitArray filterArray;
+		internal BitArray filterArray;
 		private int samples = 100;
 
-		public BloomFilter(int maxElements, int hashesPerToken)
+		internal BloomFilter(Int32 maxElements, Int32 hashesPerToken, Int32 elementsHashed, BitArray array)
 		{
-			if (maxElements < 1 || hashesPerToken < 1)
-			{
-				throw new ArgumentException();
-			}
+			if (maxElements < 1 || hashesPerToken < 1 || array == null || array.Length < 1) { throw new ArgumentException(); }
 
+			this.HashesPerElement = hashesPerToken;
 			this.MaxElements = maxElements;
-			if (MaxElements < 16777216)
-			{
-				this.MaxElements = 16777216;
-			}
-			this.HashesPerToken = hashesPerToken;
-			
-			double power = Math.Ceiling(IndexBitSize);
+			this.ElementsHashed = elementsHashed;
 
-			while ( !(IndexBitSize % 8 == 0 && power == IndexBitSize) )
+			filterArray = new BitArray(array);
+		}
+
+		public BloomFilter(Int32 maxElementsToHash, double errorProbabilityFloor)
+		{
+			if (maxElementsToHash < 1 || errorProbabilityFloor < 0) { throw new ArgumentException(); }
+
+			int sizeOfArray = CalculateFilterSize(maxElementsToHash, errorProbabilityFloor);
+			int hashesPerElement = CalculateHashesPerElement(sizeOfArray, maxElementsToHash);
+
+			this.HashesPerElement = hashesPerElement;
+			this.MaxElements = maxElementsToHash;
+
+			// Increases MaxElements until divisible by 8
+			while (SizeBits % 2 != 0 && SizeBits % 4 != 0 && SizeBits % 8 != 0)
 			{
 				this.MaxElements += 1;
-				power = Math.Ceiling(IndexBitSize);
 			}
 
-			double elements = Math.Pow(2, power);
-			this.MaxElements = (int)elements;
-
-			//// Increases MaxElements until divisible by 8
-			//while (SizeBits % 2 != 0 && SizeBits % 4 != 0 && SizeBits % 8 != 0)
-			//{
-			//	this.MaxElements += 1;
-			//}
-
 			filterArray = new BitArray(SizeBits, false);
-
-			int bytes = SizeBytes;
-
 			ElementsHashed = 0;
+		}
+
+		private int CalculateFilterSize(int elementsToHashCeiling, double probabilityFloor)
+		{
+			double top = elementsToHashCeiling * Math.Log(probabilityFloor);
+			double bottom = Math.Pow(Math.Log(2), 2);
+
+			top = Math.Abs(top);
+			bottom = Math.Abs(bottom);
+
+			double dividend = top / bottom;
+			double result = Math.Round(dividend);
+
+			return (int)result;
+		}
+
+		private int CalculateHashesPerElement(int sizeOfArray, int maxElementsToHash)
+		{
+			double rhs = sizeOfArray / maxElementsToHash;
+			double hashesPerElement = rhs * Math.Log(2);
+
+			double result = Math.Round(Math.Abs(hashesPerElement));
+			return (int)result;
 		}
 
 		public void Add(string token)
 		{
-			if (string.IsNullOrEmpty(token)) { return; }
+			if (string.IsNullOrEmpty(token)) { throw new ArgumentNullException("token"); }
 
 			int maxIndex = filterArray.Length - 1;
 			using (BloomHash tokenHash = new BloomHash(token, IndexByteSize, maxIndex))
 			{
-				// tokenHash.GetIndices().Take(HashesPerToken).ToList().ForEach(i => filterArray[i] |= true);
-				List<int> indices = tokenHash.GetIndices().Take(HashesPerToken).Where(i => !filterArray[i]).ToList();
+				IEnumerable<int> indices = tokenHash.GetIndices().Take(HashesPerElement).Where(i => !filterArray[i]);
 
 				foreach (int index in indices)
 				{
 					filterArray[index] = true;
 				}
-				ElementsHashed += 1;
 			}
-
+			ElementsHashed += 1;
 		}
 
 		public bool Query(string token)
 		{
-			if (string.IsNullOrEmpty(token))
-			{
-				throw new ArgumentNullException("token");
-			}
+			if (string.IsNullOrEmpty(token)) { throw new ArgumentNullException("token"); }
+
 			int maxIndex = filterArray.Length - 1;
 			using (BloomHash tokenHash = new BloomHash(token, IndexByteSize, maxIndex))
 			{
-				if (tokenHash.GetIndices().Take(HashesPerToken).Any(i => !filterArray[i]))
+				if (tokenHash.GetIndices().Take(HashesPerElement).Any(i => !filterArray[i]))
 				{
 					return false;
 				}
 			}
 			return true;
 		}
-
-		public void SerializeFilter(string filename)
-		{
-			if (!string.IsNullOrWhiteSpace(filename))
-			{
-				List<byte> output = new List<byte>();
-				output.AddRange(BitConverter.GetBytes(MaxElements));
-				output.AddRange(BitConverter.GetBytes(HashesPerToken));
-				output.AddRange(ByteBits.GetBytes(filterArray.OfType<bool>().ToArray()));
-				File.WriteAllBytes(filename, output.ToArray());
-			}
-		}
-
-		public static BloomFilter DeserializeFilter(string filename)
-		{
-			if (string.IsNullOrWhiteSpace(filename) || !File.Exists(filename))
-			{
-				throw new ArgumentException();
-			}
-			byte[] input = File.ReadAllBytes(filename);
-			byte[] header = input.Take(8).ToArray();
-			byte[] body = input.Skip(8).ToArray();
-
-			int maxElements = BitConverter.ToInt32(header, 0);
-			int hashesPerToken = BitConverter.ToInt32(header, 4);
-
-			BloomFilter result = new BloomFilter(maxElements, hashesPerToken);
-			result.filterArray = new BitArray(body);
-			return result;
-		}
-
+		
 		public string AsString()
 		{
 			int chunk = (filterArray.Length / samples) - 1;
@@ -174,11 +156,16 @@ namespace BloomFilterCore
 
 		public string GetUtilization()
 		{
-			bool[] filterBits = filterArray.Cast<bool>().ToArray();
-			int trueBits = filterBits.Count(b => b);
-			int totalBits = filterArray.Length;
-			int percent = (trueBits * 100) / totalBits;
-			return string.Format("{0}%\t({1}/{2})", percent, trueBits, totalBits);
+			if (filterArray == null || filterArray.Length < 1) { throw new ArgumentNullException("filterArray"); }
+
+			decimal percent = 0;
+			int maxBits = filterArray.Length;
+			int setBits = filterArray.Cast<bool>().Count(b => b);
+			if (setBits > 0)
+			{
+				percent = (setBits * 100) / maxBits;
+			}
+			return string.Format("{0:0.00}% \t ({1} / {2})", percent, setBits, maxBits);
 		}
 
 		public int[] GetActiveBitIndicies()

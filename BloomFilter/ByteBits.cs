@@ -10,36 +10,45 @@ namespace BloomFilterCore
 {
 	public static class ByteBits
 	{
-		public static bool[] GetBools(byte[] bytes)
-		{			
-			Array.Reverse(bytes); // Modify copy instead of original array
-			BitArray bitArray = new BitArray(bytes);
-			List<bool> resultList = new List<bool>();
+		public static BitArray GetBitArray(byte[] bytes)
+		{
+			return new BitArray(GetBits(bytes));
+		}
 
-			int max = bitArray.Count;
-			int counter = 0;
-			while (counter < max)
-			{
-				resultList.Add(bitArray[counter]);
-				counter += 1;
-			}
+		public static bool[] GetBits(byte[] bytes)
+		{
+			List<byte> copy = new List<byte>(bytes);
+			copy.Reverse(); //if (BitConverter.IsLittleEndian) { }
+			BitArray bitArray = new BitArray(copy.ToArray());
+			
+			List<bool> result = bitArray.Cast<bool>().ToList();
+			result.Reverse();
+			return result.ToArray();
+		}
 
-			bool[] result = resultList.ToArray();
+		public static byte[] GetBytes(BitArray bits)
+		{
+			bool [] copy = new bool[bits.Count];
+			bits.CopyTo(copy, 0);
+			Array.Reverse(copy); // Reverse the array
+
+			byte[] result = new byte[(int)Math.Ceiling((double)bits.Length / 8)];
+			bits.CopyTo(result, 0);
+
+			// Reverse yet again
 			Array.Reverse(result);
-
-			return result;
+			return result;			
 		}
 
 		public static byte[] GetBytes(bool[] bits)
 		{
-			bool[] copy = new bool[bits.Length];
-			bits.CopyTo(copy, 0);
-			Array.Reverse(copy); // Modify copy instead of original array
-			BitArray bitArray = new BitArray(copy);
-			byte[] result = new byte[bitArray.Length / 8];
-			bitArray.CopyTo(result, 0);
-			Array.Reverse(result);
-			return result;
+			bool[] copy = new List<bool>(bits).ToArray();
+			Array.Reverse(copy); // Modifies a copy, not the original array
+			BitArray a = new BitArray(copy);
+			byte[] output = new byte[a.Length / 8];
+			a.CopyTo(output, 0);
+			Array.Reverse(output);
+			return output;
 		}
 	}
 }

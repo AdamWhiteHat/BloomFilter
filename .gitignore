@@ -46,11 +46,17 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+TestResults/*
+
 BloomFilter/obj/*
 BloomFilter/bin/*
 
 TestBloomFilter/obj/*
 TestBloomFilter/bin/*
 
+Tests/TestByteBits/obj/*
+Tests/TestByteBits/bin/*
+
 *.suo
 *.pdb
+*.scgdat
