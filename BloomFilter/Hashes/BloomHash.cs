@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BloomFilterCore
+namespace BloomFilterCore.Hashes
 {
-	public class BloomHash : Hash
+	public class BloomHash : RC4TableHash
 	{
 		private static int maxIndex;
 		private static int quantityIndexBytes;

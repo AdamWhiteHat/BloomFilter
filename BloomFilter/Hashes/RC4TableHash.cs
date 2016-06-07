@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BloomFilterCore
+namespace BloomFilterCore.Hashes
 {
-	public class Hash : IDisposable
+	public class RC4TableHash : IDisposable
 	{
 		public int TableSize { get; private set; }
 		public bool IsDisposed { get; private set; }
@@ -29,7 +29,7 @@ namespace BloomFilterCore
 			}
 		}
 
-		public Hash()
+		public RC4TableHash()
 		{
 			Clear();
 			TableSize = 256; 	// Because we are using bytes

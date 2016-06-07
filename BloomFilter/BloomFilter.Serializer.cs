@@ -27,7 +27,7 @@ namespace BloomFilterCore.Serialization
 				header.AddRange(BitConverter.GetBytes(filter.ElementsHashed));
 				
 				// Body
-				byte[] body = ByteBits.GetBytes(filter.filterArray);
+				byte[] body = ByteBits.GetBytes(filter.FilterArray);
 
 				List<byte> fileBytes = new List<byte>();
 				fileBytes.AddRange(header);

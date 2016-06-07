@@ -5,6 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Windows;
+
+using BloomFilterCore.Hashes;
 
 namespace BloomFilterCore
 {
@@ -15,16 +19,15 @@ namespace BloomFilterCore
 		public Int32 HashesPerElement { get; private set; }
 
 		// Read-only properties
-		public int SizeBits { get { return MaxElements; } }
-		public int SizeBytes { get { return SizeBits / 8; } }
-		public int SizeKB { get { return SizeBits / 8192; } }
-		public int SizeMB { get { return SizeBits / 8388608; } }
+		public int SizeBits { get { return _filterArray.Count; } }
 		public double IndexBitSize { get { return Math.Log(SizeBits, 2); } }
 		public int IndexByteSize { get { return (int)Math.Ceiling(IndexBitSize / 8); } }
 
-		internal BitArray filterArray { get { return _filterArray; } }
+		public BitArray FilterArray { get { return _filterArray; } }
 		private BitArray _filterArray;
 		private int samples = 100;
+
+		#region Constructors
 
 		internal BloomFilter(Int32 maxElements, Int32 hashesPerToken, Int32 elementsHashed, BitArray array)
 		{
@@ -41,23 +44,45 @@ namespace BloomFilterCore
 		{
 			if (maxElementsToHash < 1 || errorProbabilityFloor < 0) { throw new ArgumentException(); }
 
-			int sizeOfArray = CalculateFilterSize(maxElementsToHash, errorProbabilityFloor);
-			int hashesPerElement = CalculateHashesPerElement(sizeOfArray, maxElementsToHash);
-
-			this.HashesPerElement = hashesPerElement;
 			this.MaxElements = maxElementsToHash;
 
-			// Increases MaxElements until divisible by 8
-			while (SizeBits % 2 != 0 && SizeBits % 4 != 0 && SizeBits % 8 != 0)
-			{
-				this.MaxElements += 1;
-			}
+			int sizeOfArray = CalculateFilterSize(MaxElements, errorProbabilityFloor);
+			sizeOfArray = FindSquareMultipleOf8(sizeOfArray);
+			this.HashesPerElement = CalculateHashesPerElement(sizeOfArray, MaxElements);
 
-			_filterArray = new BitArray(SizeBits, false);
+			_filterArray = new BitArray(sizeOfArray, false);
 			ElementsHashed = 0;
 		}
 
-		private int CalculateFilterSize(int elementsToHashCeiling, double probabilityFloor)
+		#endregion
+
+		#region Calculate Sizes
+
+		private static int FindSquareMultipleOf8(int number)
+		{
+			double result = number;
+
+			double root = Math.Sqrt(result);
+
+			if (root % 1 != 0)
+			{
+				root = Math.Round(root, MidpointRounding.ToEven);
+			}
+
+			if (root % 2 != 0)
+			{
+				root += 1;
+			}
+
+			while ((result = Math.Pow(root, 2)) % 8 != 0)
+			{
+				root += 2;
+			}
+
+			return (int)result;
+		}
+
+		private static int CalculateFilterSize(int elementsToHashCeiling, double probabilityFloor)
 		{
 			double top = elementsToHashCeiling * Math.Log(probabilityFloor);
 			double bottom = Math.Pow(Math.Log(2), 2);
@@ -71,7 +96,7 @@ namespace BloomFilterCore
 			return (int)result;
 		}
 
-		private int CalculateHashesPerElement(int sizeOfArray, int maxElementsToHash)
+		private static int CalculateHashesPerElement(int sizeOfArray, int maxElementsToHash)
 		{
 			double rhs = sizeOfArray / maxElementsToHash;
 			double hashesPerElement = rhs * Math.Log(2);
@@ -80,36 +105,63 @@ namespace BloomFilterCore
 			return (int)result;
 		}
 
+		#endregion
+
 		public void Add(string token)
+		{
+			int[] indices = GetIndices(token);
+
+			foreach (int index in indices)
+			{
+				_filterArray[index] = true;
+			}
+
+			ElementsHashed += 1;
+		}
+
+		private int[] GetIndices(string token)
 		{
 			if (string.IsNullOrEmpty(token)) { throw new ArgumentNullException("token"); }
 
 			int maxIndex = _filterArray.Length - 1;
+			int[] indices = new int[] { };
+
 			using (BloomHash tokenHash = new BloomHash(token, IndexByteSize, maxIndex))
 			{
-				IEnumerable<int> indices = tokenHash.GetIndices().Take(HashesPerElement).Where(i => !_filterArray[i]);
-
-				foreach (int index in indices)
-				{
-					_filterArray[index] = true;
-				}
+				indices = tokenHash.GetIndices().Take(HashesPerElement).Where(i => !_filterArray[i]).ToArray();
 			}
-			ElementsHashed += 1;
+
+			//indices = MD5Hash.GetIndices(Encoding.ASCII.GetBytes(token), HashesPerElement, MaxElements);
+
+			return indices;
 		}
 
 		public bool Query(string token)
 		{
-			if (string.IsNullOrEmpty(token)) { throw new ArgumentNullException("token"); }
+			int[] indices = GetIndices(token);
 
-			int maxIndex = _filterArray.Length - 1;
-			using (BloomHash tokenHash = new BloomHash(token, IndexByteSize, maxIndex))
+			if (indices.Any(i => !_filterArray[i]))
 			{
-				if (tokenHash.GetIndices().Take(HashesPerElement).Any(i => !_filterArray[i]))
-				{
-					return false;
-				}
+				return false;
 			}
-			return true;
+			else
+			{
+				return true;
+			}
+		}
+
+		public string GetUtilization()
+		{
+			if (_filterArray == null || _filterArray.Length < 1) { throw new ArgumentNullException("filterArray"); }
+
+			decimal percent = 0;
+			IEnumerable<bool> flippedBits = _filterArray.Cast<bool>().Where(b => b==true);
+			int setBits = flippedBits.Count();
+			if (setBits > 0)
+			{
+				percent = setBits * 100 / SizeBits;
+			}
+			return string.Format("{0:0.00}% \t ({1} / {2})", percent, setBits, SizeBits);
 		}
 		
 		public string AsString()
@@ -155,34 +207,6 @@ namespace BloomFilterCore
 			result.AppendLine(d2);
 			result.AppendLine();
 			return result.ToString();
-		}
-
-		public string GetUtilization()
-		{
-			if (_filterArray == null || _filterArray.Length < 1) { throw new ArgumentNullException("filterArray"); }
-
-			decimal percent = 0;
-			int maxBits = _filterArray.Length;
-			int setBits = _filterArray.Cast<bool>().Count(b => b);
-			if (setBits > 0)
-			{
-				percent = (setBits * 100) / maxBits;
-			}
-			return string.Format("{0:0.00}% \t ({1} / {2})", percent, setBits, maxBits);
-		}
-
-		public int[] GetActiveBitIndicies()
-		{
-			int index = 0;
-			List<int> result = new List<int>();
-			List<bool> bitList = _filterArray.Cast<bool>().ToList();
-			while (true)
-			{
-				int i = bitList.IndexOf(true, index);
-				if (i == -1) { return result.ToArray(); }
-				result.Add(i);
-				index = i + 1;
-			}
 		}
 	}
 }
