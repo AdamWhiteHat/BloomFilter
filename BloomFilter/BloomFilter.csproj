@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -77,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BloomFilter.cs" />
+    <Compile Include="Hashes\BitShuffle.cs" />
     <Compile Include="Hashes\BloomHash.cs" />
     <Compile Include="ByteBits.cs" />
     <Compile Include="Hashes\RC4TableHash.cs" />

@@ -26,6 +26,11 @@ namespace BloomFilterCore
 			return result.ToArray();
 		}
 
+		public static byte[] GetBytes(string Input)
+		{
+			return Encoding.ASCII.GetBytes(Input);
+		}
+
 		public static byte[] GetBytes(BitArray bits)
 		{
 			bool [] copy = new bool[bits.Count];

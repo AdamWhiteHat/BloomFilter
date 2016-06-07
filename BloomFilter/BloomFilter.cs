@@ -131,7 +131,7 @@ namespace BloomFilterCore
 				indices = tokenHash.GetIndices().Take(HashesPerElement).Where(i => !_filterArray[i]).ToArray();
 			}
 
-			//indices = MD5Hash.GetIndices(Encoding.ASCII.GetBytes(token), HashesPerElement, MaxElements);
+			//indices = MD5Hash.GetIndices(token.GetBytes(), HashesPerElement, MaxElements);
 
 			return indices;
 		}
@@ -170,7 +170,6 @@ namespace BloomFilterCore
 			bool[] filterBits = _filterArray.Cast<bool>().ToArray();
 
 			int index = 0;
-			int counter = samples;
 			StringBuilder result = new StringBuilder();
 			List<string> density = new List<string>();
 			while (index < _filterArray.Length - 1)

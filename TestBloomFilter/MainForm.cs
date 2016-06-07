@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BloomFilterCore;
+using BloomFilterCore.Hashes;
 using BloomFilterCore.Serialization;
 
 namespace TestBloomFilter

@@ -18,8 +18,6 @@ namespace BloomFilterCore.Serialization
 		{
 			if (string.IsNullOrWhiteSpace(filename)) { return; }
 
-			try
-			{		
 				// Header
 				List<byte> header = new List<byte>();
 				header.AddRange(BitConverter.GetBytes(filter.MaxElements));
@@ -46,22 +44,13 @@ namespace BloomFilterCore.Serialization
 							binaryWriter.Write(fileBytes.ToArray());
 						}
 					}
-				}
-			}
-			catch (Exception ex)
-			{
-				string message = ex.Message;
-				string stackTrace = ex.StackTrace;
-				string targetSite = ex.TargetSite.Name;
-			}
+				}			
 		}
 
 		public static BloomFilter Load(string filename)
 		{
 			if (string.IsNullOrWhiteSpace(filename) || !File.Exists(filename)) { throw new ArgumentException(); }
 
-			try
-			{
 				int bitsPerInt = 4;
 				int headerSize = bitsPerInt * 3;
 				List<byte> input = new List<byte>();
@@ -85,15 +74,7 @@ namespace BloomFilterCore.Serialization
 				BitArray bits = new BitArray(body);
 
 				BloomFilter result = new BloomFilter(maxElements, hashesPerToken, elementsHashed, bits);
-				return result;
-			}
-			catch (Exception ex)
-			{
-				string message = ex.Message;
-				string stackTrace = ex.StackTrace;
-				string targetSite = ex.TargetSite.Name;
-				return null;
-			}
+				return result;		
 		}
 
 		private static void WriteCompressedFile(string filename, byte[] data)
