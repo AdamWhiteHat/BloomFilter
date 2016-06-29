@@ -45,7 +45,7 @@ namespace BloomFilterCore
 			public string GetNext()
 			{
 				counter++;
-				if (counter > 2000)
+				if (counter > 3000)
 				{
 					Size++;
 					counter = 0;

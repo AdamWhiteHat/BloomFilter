@@ -26,7 +26,6 @@ namespace BloomFilterCore
 
 		public BitArray FilterArray { get { return _filterArray; } }
 		private BitArray _filterArray;
-		private int samples = 100;
 
 		#region Constructors
 
