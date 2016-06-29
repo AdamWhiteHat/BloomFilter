@@ -18,63 +18,69 @@ namespace BloomFilterCore.Serialization
 		{
 			if (string.IsNullOrWhiteSpace(filename)) { return; }
 
-				// Header
-				List<byte> header = new List<byte>();
-				header.AddRange(BitConverter.GetBytes(filter.MaxElements));
-				header.AddRange(BitConverter.GetBytes(filter.HashesPerElement));
-				header.AddRange(BitConverter.GetBytes(filter.ElementsHashed));
-				
-				// Body
-				byte[] body = ByteBits.GetBytes(filter.FilterArray);
+			// Header
+			List<byte> header = new List<byte>();
+			header.AddRange(BitConverter.GetBytes(filter.ErrorProbability));
+			header.AddRange(BitConverter.GetBytes(filter.MaxElements));
+			header.AddRange(BitConverter.GetBytes(filter.HashesPerElement));
+			header.AddRange(BitConverter.GetBytes(filter.ElementsHashed));
 
-				List<byte> fileBytes = new List<byte>();
-				fileBytes.AddRange(header);
-				fileBytes.AddRange(body);
 
-				if (Settings.Output_Compress)
+			// Body
+			byte[] body = ByteBits.GetBytes(filter.FilterArray);
+
+			List<byte> fileBytes = new List<byte>();
+			fileBytes.AddRange(header);
+			fileBytes.AddRange(body);
+
+			if (Settings.Output_Compress)
+			{
+				WriteCompressedFile(filename, fileBytes.ToArray());
+			}
+			else
+			{
+				using (FileStream fileStream = File.Create(filename))
 				{
-					WriteCompressedFile(filename, fileBytes.ToArray());
-				}
-				else
-				{
-					using (FileStream fileStream = File.Create(filename))
+					using (BinaryWriter binaryWriter = new BinaryWriter(fileStream))
 					{
-						using (BinaryWriter binaryWriter = new BinaryWriter(fileStream))
-						{
-							binaryWriter.Write(fileBytes.ToArray());
-						}
+						binaryWriter.Write(fileBytes.ToArray());
 					}
-				}			
+				}
+			}
 		}
 
+		public static int IntSize = sizeof(Int32);
+		public static int DoubleSize = sizeof(double);
 		public static BloomFilter Load(string filename)
 		{
 			if (string.IsNullOrWhiteSpace(filename) || !File.Exists(filename)) { throw new ArgumentException(); }
+						
+			List<byte> input = new List<byte>();
+			if (Settings.Output_Compress)
+			{
+				input.AddRange(ReadCompressedFile(filename));
+			}
+			else
+			{
+				input.AddRange(File.ReadAllBytes(filename));
+			}
 
-				int bitsPerInt = 4;
-				int headerSize = bitsPerInt * 3;
-				List<byte> input = new List<byte>();
-				if (Settings.Output_Compress)
-				{
-					input.AddRange(ReadCompressedFile(filename));
-				}
-				else
-				{
-					input.AddRange(File.ReadAllBytes(filename));
-				}
-							
-				byte[] header = input.Take(headerSize).ToArray();
-				Int32 maxElements = BitConverter.ToInt32(header, bitsPerInt * 0);
-				Int32 hashesPerToken = BitConverter.ToInt32(header, bitsPerInt * 1);
-				Int32 elementsHashed = BitConverter.ToInt32(header, bitsPerInt * 2);
+			int counter = 0;
+			int headerSize = (DoubleSize * 1) + (IntSize * 3);// Make sure you change this number when you change header load
+			byte[] header = input.Take(headerSize).ToArray();
+			// Load header
+			double collisionProbability = BitConverter.ToDouble(header, 0);
+			Int32 maxElements = BitConverter.ToInt32(header, (counter += DoubleSize));
+			Int32 hashesPerElement = BitConverter.ToInt32(header, (counter += IntSize));
+			Int32 elementsHashed = BitConverter.ToInt32(header, (counter += IntSize));
+			
+			byte[] body = input.Skip(headerSize).ToArray();
 
-				byte[] body = input.Skip(headerSize).ToArray();
-				
-				Array.Reverse(body);
-				BitArray bits = new BitArray(body);
+			Array.Reverse(body);
+			BitArray bits = new BitArray(body);
 
-				BloomFilter result = new BloomFilter(maxElements, hashesPerToken, elementsHashed, bits);
-				return result;		
+			BloomFilter result = new BloomFilter(maxElements, collisionProbability, hashesPerElement, elementsHashed, bits);
+			return result;
 		}
 
 		private static void WriteCompressedFile(string filename, byte[] data)

@@ -46,6 +46,7 @@
 			this.tbErrorProbability = new System.Windows.Forms.TextBox();
 			this.pictureBoxFilter = new System.Windows.Forms.PictureBox();
 			this.label6 = new System.Windows.Forms.Label();
+			this.btnGenerate = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxFilter)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -56,7 +57,7 @@
 			this.tbMaxElementsToHash.Name = "tbMaxElementsToHash";
 			this.tbMaxElementsToHash.Size = new System.Drawing.Size(100, 20);
 			this.tbMaxElementsToHash.TabIndex = 0;
-			this.tbMaxElementsToHash.Text = "100,000";
+			this.tbMaxElementsToHash.Text = "10,000";
 			this.tbMaxElementsToHash.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// labelElements
@@ -90,7 +91,7 @@
 			this.btnAddHashes.Name = "btnAddHashes";
 			this.btnAddHashes.Size = new System.Drawing.Size(100, 23);
 			this.btnAddHashes.TabIndex = 3;
-			this.btnAddHashes.Text = "Add Hashes";
+			this.btnAddHashes.Text = "Load Hashes...";
 			this.btnAddHashes.UseVisualStyleBackColor = true;
 			this.btnAddHashes.Click += new System.EventHandler(this.btnAddHashes_Click);
 			// 
@@ -138,11 +139,11 @@
 			// 
 			this.btnTestHashes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnTestHashes.Enabled = false;
-			this.btnTestHashes.Location = new System.Drawing.Point(377, 94);
+			this.btnTestHashes.Location = new System.Drawing.Point(270, 71);
 			this.btnTestHashes.Name = "btnTestHashes";
 			this.btnTestHashes.Size = new System.Drawing.Size(100, 23);
 			this.btnTestHashes.TabIndex = 15;
-			this.btnTestHashes.Text = "Test Hashes";
+			this.btnTestHashes.Text = "Load Test...";
 			this.btnTestHashes.UseVisualStyleBackColor = true;
 			this.btnTestHashes.Click += new System.EventHandler(this.btnTestHashes_Click);
 			// 
@@ -211,7 +212,7 @@
 			this.tbErrorProbability.Name = "tbErrorProbability";
 			this.tbErrorProbability.Size = new System.Drawing.Size(55, 20);
 			this.tbErrorProbability.TabIndex = 31;
-			this.tbErrorProbability.Text = "0.01";
+			this.tbErrorProbability.Text = "0.1";
 			this.tbErrorProbability.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// pictureBoxFilter
@@ -234,11 +235,23 @@
 			this.label6.Size = new System.Drawing.Size(0, 13);
 			this.label6.TabIndex = 34;
 			// 
+			// btnGenerate
+			// 
+			this.btnGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnGenerate.Location = new System.Drawing.Point(377, 94);
+			this.btnGenerate.Name = "btnGenerate";
+			this.btnGenerate.Size = new System.Drawing.Size(100, 23);
+			this.btnGenerate.TabIndex = 35;
+			this.btnGenerate.Text = "Generate Hashes";
+			this.btnGenerate.UseVisualStyleBackColor = true;
+			this.btnGenerate.Click += new System.EventHandler(this.btnGenerate_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(484, 461);
+			this.Controls.Add(this.btnGenerate);
 			this.Controls.Add(this.label6);
 			this.Controls.Add(this.pictureBoxFilter);
 			this.Controls.Add(this.label10);
@@ -286,6 +299,7 @@
 		private System.Windows.Forms.TextBox tbErrorProbability;
 		private System.Windows.Forms.PictureBox pictureBoxFilter;
 		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.Button btnGenerate;
 	}
 }
 

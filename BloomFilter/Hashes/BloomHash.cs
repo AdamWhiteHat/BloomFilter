@@ -21,9 +21,10 @@ namespace BloomFilterCore.Hashes
 			int shuffle = 0;
 
 			byte[] inputBytes = ByteBits.GetBytes(input);
-			byte[] interleaved = BitShuffle.Interleave(inputBytes);
-			byte[] mixedBytes = BitShuffle.FlipEveryNBit(interleaved, 7);
-			mixedBytes = BitShuffle.FlipEveryNBit(interleaved, 9);
+			byte[] mixedBytes = BitShuffle.Interleave(inputBytes);
+			mixedBytes = BitShuffle.Interleave(inputBytes);
+			mixedBytes = BitShuffle.Interleave(inputBytes);
+			mixedBytes = BitShuffle.Interleave(inputBytes);
 
 			Shuffle(mixedBytes.Length);
 			foreach (byte bite in mixedBytes)
@@ -31,7 +32,7 @@ namespace BloomFilterCore.Hashes
 				shuffle = ((bite * counter) - counter ) + 1;
 				Shuffle(shuffle);
 				counter++;
-			}			
+			}
 		}
 
 		public IEnumerable<int> GetIndices()
