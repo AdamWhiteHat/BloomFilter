@@ -4,47 +4,35 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BloomFilterCore
+namespace BloomFilterCore.Hashes
 {
-	public class BloomHash : Hash
+	public class BloomHash : RC4TableHash
 	{
 		private static int maxIndex;
 		private static int quantityIndexBytes;
-
-		private string token;		
-		private int _tokCntr = 0;
-		private int tokenCounter { get { return ++_tokCntr; } }
-
-		private int _tokIndx = -1;
-		private int tokenIndex
-		{
-			get
-			{
-				CheckDisposed();
-				_tokIndx += 1;
-				if (_tokIndx > token.Length - 1)
-				{
-					_tokIndx = 0;
-				}
-				return _tokIndx;
-			}
-		}
-
+		
 		public BloomHash(string input, int indexByteSize, int maximumIndex)
 			: base()
 		{
-			token = input;
 			maxIndex = maximumIndex;
 			quantityIndexBytes = indexByteSize;
+						
+			int counter = 0;
+			int shuffle = 0;
 
-			int prime = 1;
-			byte[] inputBytes = Encoding.ASCII.GetBytes(input);
-			Shuffle(input.Length);
-			foreach (byte bite in inputBytes)
+			byte[] inputBytes = ByteBits.GetBytes(input);
+			byte[] mixedBytes = BitShuffle.Interleave(inputBytes);
+			mixedBytes = BitShuffle.Interleave(inputBytes);
+			mixedBytes = BitShuffle.Interleave(inputBytes);
+			mixedBytes = BitShuffle.Interleave(inputBytes);
+
+			Shuffle(mixedBytes.Length);
+			foreach (byte bite in mixedBytes)
 			{
-				prime = (prime * 2) + 1;
-				Shuffle(bite * prime);
-			}			
+				shuffle = ((bite * counter) - counter ) + 1;
+				Shuffle(shuffle);
+				counter++;
+			}
 		}
 
 		public IEnumerable<int> GetIndices()

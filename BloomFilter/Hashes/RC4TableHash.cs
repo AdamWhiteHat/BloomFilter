@@ -6,19 +6,40 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BloomFilterCore
+namespace BloomFilterCore.Hashes
 {
-	public class Hash : IDisposable
+	public class RC4TableHash : IDisposable
 	{
-		public int TableSize { get; private set; }
+		public static int TableSize = 256;// Because we are using bytes
 		public bool IsDisposed { get; private set; }
 
 		private byte i;
 		private byte j;
 		private byte l;
 		private byte[] _table;
-		private int shuffleRounds = 3;
+		private int shuffleRounds = 1;
 		private byte k { get { unchecked { l = (byte)(_table[i] + _table[j]); return _table[l]; } } }
+
+		private static byte[] NewTable;
+
+		static RC4TableHash()
+		{
+			int counter = TableSize;
+			List<byte> result = new List<byte>();
+			while (counter-- > 0)
+			{
+				result.Add((byte)(255 - counter));
+			}
+			NewTable = result.ToArray();
+		}
+
+		public RC4TableHash()
+		{		
+			Clear();
+			_table = NewTable;
+			IsDisposed = false;
+			Shuffle(TableSize+1);
+		}
 
 		public byte this[int index]
 		{
@@ -27,21 +48,6 @@ namespace BloomFilterCore
 				CheckDisposed();
 				return _table[index];
 			}
-		}
-
-		public Hash()
-		{
-			Clear();
-			TableSize = 256; 	// Because we are using bytes
-			int counter = TableSize;
-			List<byte> result = new List<byte>();
-			while (counter-- > 0)
-			{
-				result.Add((byte)(255 - counter));
-			}
-			_table = result.ToArray();
-			IsDisposed = false;
-			Shuffle(TableSize+1);
 		}
 		
 		public byte[] GetBytes(int quantity)
