@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("TestByteBits")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("www.csharpprogramming.tips")]
+[assembly: AssemblyCompany("https://csharpcodewhisperer.blogspot.com")]
 [assembly: AssemblyProduct("TestByteBits")]
 [assembly: AssemblyCopyright("Copyright © Adam White 2016")]
 [assembly: AssemblyTrademark("")]
