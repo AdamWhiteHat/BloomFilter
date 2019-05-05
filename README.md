@@ -4,8 +4,8 @@ A novel, space-efficient, and probabilistic hashing scheme for a large number of
 
 A bloom filter with 160,000 values hashed and a 1% collision probability results in a filter that is 54KB (when using compression)! 
 
-![alt text](https://github.com/AdamRakaska/BloomFilter/blob/master/bloom_filter1.JPG "BloomFilter Screenshot")
 
+![alt text](https://github.com/AdamWhiteHat/BloomFilter/blob/master/bloom_filter1.JPG "BloomFilter Screenshot")
 
 
 

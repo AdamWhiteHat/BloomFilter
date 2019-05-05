@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Windows;
 
 using BloomFilterCore.Hashes;
 
 namespace BloomFilterCore
 {
-	public partial class BloomFilter
+    public partial class BloomFilter
 	{
 		public Int32 MaxElements { get; private set; }
 		public Int32 ElementsHashed { get; private set; }

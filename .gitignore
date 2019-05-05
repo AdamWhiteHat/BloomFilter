@@ -60,3 +60,4 @@ Tests/TestByteBits/bin/*
 *.suo
 *.pdb
 *.scgdat
+*.dat
