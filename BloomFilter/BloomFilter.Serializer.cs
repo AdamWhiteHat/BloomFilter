@@ -9,77 +9,54 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Cache;
+using System.Numerics;
+using System.Runtime.Serialization;
+using System.Xml;
 
 namespace BloomFilterCore.Serialization
 {
 	public class BloomFilterSerializer
 	{
-		public static void Save(BloomFilter filter, string filename)
+		private static int _intSize = sizeof(Int32);
+		private static int _doubleSize = sizeof(double);
+
+		public static void Save(BloomFilter filter, string filename, bool compressed = false)
 		{
-			if (string.IsNullOrWhiteSpace(filename)) { return; }
+			if (string.IsNullOrWhiteSpace(filename)) { throw new ArgumentException(nameof(filename)); }
+			if (filter == null) { throw new ArgumentNullException(nameof(filter)); }
 
-			// Header
-			List<byte> header = new List<byte>();
-			header.AddRange(BitConverter.GetBytes(filter.ErrorProbability));
-			header.AddRange(BitConverter.GetBytes(filter.MaxElements));
-			header.AddRange(BitConverter.GetBytes(filter.HashesPerElement));
-			header.AddRange(BitConverter.GetBytes(filter.ElementsHashed));
+			byte[] fileBytes = BinarySerializer.Serialize<BloomFilter>(filter);
 
-
-			// Body
-			byte[] body = ByteBits.GetBytes(filter.FilterArray);
-
-			List<byte> fileBytes = new List<byte>();
-			fileBytes.AddRange(header);
-			fileBytes.AddRange(body);
-
-			if (Settings.Output_Compress)
+			if (compressed)
 			{
-				WriteCompressedFile(filename, fileBytes.ToArray());
+				WriteCompressedFile(filename, fileBytes);
 			}
 			else
 			{
-				using (FileStream fileStream = File.Create(filename))
-				{
-					using (BinaryWriter binaryWriter = new BinaryWriter(fileStream))
-					{
-						binaryWriter.Write(fileBytes.ToArray());
-					}
-				}
+				File.WriteAllBytes(filename, fileBytes);
 			}
 		}
 
-		public static int IntSize = sizeof(Int32);
-		public static int DoubleSize = sizeof(double);
-		public static BloomFilter Load(string filename)
+		public static BloomFilter Load(string filename, bool compressed = false)
 		{
-			if (string.IsNullOrWhiteSpace(filename) || !File.Exists(filename)) { throw new ArgumentException(); }
-						
-			List<byte> input = new List<byte>();
-			if (Settings.Output_Compress)
+			if (string.IsNullOrWhiteSpace(filename)) { throw new ArgumentNullException(nameof(filename)); }
+			if (!File.Exists(filename)) { throw new ArgumentException(nameof(filename)); }
+
+			byte[] fileBytes = new byte[0];
+
+			if (compressed)
 			{
-				input.AddRange(ReadCompressedFile(filename));
+				fileBytes = ReadCompressedFile(filename);
 			}
 			else
 			{
-				input.AddRange(File.ReadAllBytes(filename));
+				fileBytes = File.ReadAllBytes(filename);
 			}
 
-			int counter = 0;
-			int headerSize = (DoubleSize * 1) + (IntSize * 3);// Make sure you change this number when you change header load
-			byte[] header = input.Take(headerSize).ToArray();
-			// Load header
-			double collisionProbability = BitConverter.ToDouble(header, 0);
-			Int32 maxElements = BitConverter.ToInt32(header, (counter += DoubleSize));
-			Int32 hashesPerElement = BitConverter.ToInt32(header, (counter += IntSize));
-			Int32 elementsHashed = BitConverter.ToInt32(header, (counter += IntSize));
-			
-			byte[] body = input.Skip(headerSize).ToArray();
+			BloomFilter result = BinarySerializer.Deserialize<BloomFilter>(fileBytes);
 
-			Array.Reverse(body);
-			BitArray bits = new BitArray(body);
+			result.BuildHashFunctions();
 
-			BloomFilter result = new BloomFilter(maxElements, collisionProbability, hashesPerElement, elementsHashed, bits);
 			return result;
 		}
 
@@ -124,5 +101,29 @@ namespace BloomFilterCore.Serialization
 				}
 			}
 		}
+		private static class BinarySerializer
+		{
+			public static byte[] Serialize<T>(T obj)
+			{
+				var serializer = new DataContractSerializer(typeof(T));
+				var stream = new MemoryStream();
+				using (var writer = XmlDictionaryWriter.CreateBinaryWriter(stream))
+				{
+					serializer.WriteObject(writer, obj);
+				}
+				return stream.ToArray();
+			}
+
+			public static T Deserialize<T>(byte[] data)
+			{
+				var serializer = new DataContractSerializer(typeof(T));
+				using (var stream = new MemoryStream(data))
+				using (var reader = XmlDictionaryReader.CreateBinaryReader(stream, XmlDictionaryReaderQuotas.Max))
+				{
+					return (T)serializer.ReadObject(reader);
+				}
+			}
+		}
+
 	}
 }

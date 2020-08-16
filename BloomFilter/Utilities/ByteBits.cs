@@ -26,14 +26,14 @@ namespace BloomFilterCore
 			return result.ToArray();
 		}
 
-		public static byte[] GetBytes(string Input)
+		public static byte[] GetBytes(string input)
 		{
-			return Encoding.ASCII.GetBytes(Input);
+			return Encoding.UTF8.GetBytes(input);
 		}
 
-		public static string GetString(byte[] Input)
+		public static string GetString(byte[] input)
 		{
-			return Encoding.ASCII.GetString(Input);
+			return Encoding.UTF8.GetString(input);
 		}
 
 		public static byte[] GetBytes(BitArray bits)

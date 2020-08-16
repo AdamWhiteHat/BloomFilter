@@ -61,3 +61,4 @@ Tests/TestByteBits/bin/*
 *.pdb
 *.scgdat
 *.dat
+/.vs

@@ -31,13 +31,13 @@
 			this.tbMaxElementsToHash = new System.Windows.Forms.TextBox();
 			this.labelElements = new System.Windows.Forms.Label();
 			this.btnCreateFilter = new System.Windows.Forms.Button();
-			this.btnAddHashes = new System.Windows.Forms.Button();
+			this.btnAddHashesFromFile = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.label4 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
 			this.label5 = new System.Windows.Forms.Label();
-			this.btnTestHashes = new System.Windows.Forms.Button();
+			this.btnTestHashesFromFile = new System.Windows.Forms.Button();
 			this.label11 = new System.Windows.Forms.Label();
 			this.tbHashesPerElement = new System.Windows.Forms.TextBox();
 			this.btnOpenFilter = new System.Windows.Forms.Button();
@@ -47,24 +47,26 @@
 			this.pictureBoxFilter = new System.Windows.Forms.PictureBox();
 			this.label6 = new System.Windows.Forms.Label();
 			this.btnGenerate = new System.Windows.Forms.Button();
+			this.btnGenerateSequenceToFile = new System.Windows.Forms.Button();
+			this.cbCompress = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxFilter)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// tbMaxElementsToHash
 			// 
 			this.tbMaxElementsToHash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.tbMaxElementsToHash.Location = new System.Drawing.Point(270, 48);
+			this.tbMaxElementsToHash.Location = new System.Drawing.Point(470, 48);
 			this.tbMaxElementsToHash.Name = "tbMaxElementsToHash";
 			this.tbMaxElementsToHash.Size = new System.Drawing.Size(100, 20);
 			this.tbMaxElementsToHash.TabIndex = 0;
-			this.tbMaxElementsToHash.Text = "10,000";
+			this.tbMaxElementsToHash.Text = "10000";
 			this.tbMaxElementsToHash.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// labelElements
 			// 
 			this.labelElements.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.labelElements.AutoSize = true;
-			this.labelElements.Location = new System.Drawing.Point(169, 51);
+			this.labelElements.Location = new System.Drawing.Point(369, 51);
 			this.labelElements.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
 			this.labelElements.Name = "labelElements";
 			this.labelElements.Size = new System.Drawing.Size(97, 13);
@@ -75,7 +77,7 @@
 			// btnCreateFilter
 			// 
 			this.btnCreateFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnCreateFilter.Location = new System.Drawing.Point(377, 2);
+			this.btnCreateFilter.Location = new System.Drawing.Point(577, 2);
 			this.btnCreateFilter.Name = "btnCreateFilter";
 			this.btnCreateFilter.Size = new System.Drawing.Size(100, 22);
 			this.btnCreateFilter.TabIndex = 2;
@@ -83,17 +85,17 @@
 			this.btnCreateFilter.UseVisualStyleBackColor = true;
 			this.btnCreateFilter.Click += new System.EventHandler(this.btnCreateOrCloseFilter_Click);
 			// 
-			// btnAddHashes
+			// btnAddHashesFromFile
 			// 
-			this.btnAddHashes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnAddHashes.Enabled = false;
-			this.btnAddHashes.Location = new System.Drawing.Point(377, 71);
-			this.btnAddHashes.Name = "btnAddHashes";
-			this.btnAddHashes.Size = new System.Drawing.Size(100, 23);
-			this.btnAddHashes.TabIndex = 3;
-			this.btnAddHashes.Text = "Load Hashes...";
-			this.btnAddHashes.UseVisualStyleBackColor = true;
-			this.btnAddHashes.Click += new System.EventHandler(this.btnAddHashes_Click);
+			this.btnAddHashesFromFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnAddHashesFromFile.Enabled = false;
+			this.btnAddHashesFromFile.Location = new System.Drawing.Point(206, 32);
+			this.btnAddHashesFromFile.Name = "btnAddHashesFromFile";
+			this.btnAddHashesFromFile.Size = new System.Drawing.Size(157, 23);
+			this.btnAddHashesFromFile.TabIndex = 3;
+			this.btnAddHashesFromFile.Text = "Add Hashes From File...";
+			this.btnAddHashesFromFile.UseVisualStyleBackColor = true;
+			this.btnAddHashesFromFile.Click += new System.EventHandler(this.btnAddHashesFromFile_Click);
 			// 
 			// label1
 			// 
@@ -135,23 +137,23 @@
 			this.label5.Size = new System.Drawing.Size(0, 13);
 			this.label5.TabIndex = 10;
 			// 
-			// btnTestHashes
+			// btnTestHashesFromFile
 			// 
-			this.btnTestHashes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnTestHashes.Enabled = false;
-			this.btnTestHashes.Location = new System.Drawing.Point(270, 71);
-			this.btnTestHashes.Name = "btnTestHashes";
-			this.btnTestHashes.Size = new System.Drawing.Size(100, 23);
-			this.btnTestHashes.TabIndex = 15;
-			this.btnTestHashes.Text = "Load Test...";
-			this.btnTestHashes.UseVisualStyleBackColor = true;
-			this.btnTestHashes.Click += new System.EventHandler(this.btnTestHashes_Click);
+			this.btnTestHashesFromFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnTestHashesFromFile.Enabled = false;
+			this.btnTestHashesFromFile.Location = new System.Drawing.Point(206, 57);
+			this.btnTestHashesFromFile.Name = "btnTestHashesFromFile";
+			this.btnTestHashesFromFile.Size = new System.Drawing.Size(157, 23);
+			this.btnTestHashesFromFile.TabIndex = 15;
+			this.btnTestHashesFromFile.Text = "Test Filter From File...";
+			this.btnTestHashesFromFile.UseVisualStyleBackColor = true;
+			this.btnTestHashesFromFile.Click += new System.EventHandler(this.btnTestHashesFromFile_Click);
 			// 
 			// label11
 			// 
 			this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.label11.AutoSize = true;
-			this.label11.Location = new System.Drawing.Point(207, 7);
+			this.label11.Location = new System.Drawing.Point(407, 7);
 			this.label11.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
 			this.label11.Name = "label11";
 			this.label11.Size = new System.Drawing.Size(104, 13);
@@ -162,7 +164,7 @@
 			// tbHashesPerElement
 			// 
 			this.tbHashesPerElement.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.tbHashesPerElement.Location = new System.Drawing.Point(315, 4);
+			this.tbHashesPerElement.Location = new System.Drawing.Point(515, 4);
 			this.tbHashesPerElement.Name = "tbHashesPerElement";
 			this.tbHashesPerElement.ReadOnly = true;
 			this.tbHashesPerElement.Size = new System.Drawing.Size(55, 20);
@@ -173,7 +175,7 @@
 			// btnOpenFilter
 			// 
 			this.btnOpenFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnOpenFilter.Location = new System.Drawing.Point(377, 24);
+			this.btnOpenFilter.Location = new System.Drawing.Point(577, 24);
 			this.btnOpenFilter.Name = "btnOpenFilter";
 			this.btnOpenFilter.Size = new System.Drawing.Size(100, 22);
 			this.btnOpenFilter.TabIndex = 29;
@@ -185,7 +187,7 @@
 			// 
 			this.btnSaveFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnSaveFilter.Enabled = false;
-			this.btnSaveFilter.Location = new System.Drawing.Point(377, 46);
+			this.btnSaveFilter.Location = new System.Drawing.Point(577, 46);
 			this.btnSaveFilter.Name = "btnSaveFilter";
 			this.btnSaveFilter.Size = new System.Drawing.Size(100, 22);
 			this.btnSaveFilter.TabIndex = 30;
@@ -197,7 +199,7 @@
 			// 
 			this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.label10.AutoSize = true;
-			this.label10.Location = new System.Drawing.Point(203, 28);
+			this.label10.Location = new System.Drawing.Point(403, 28);
 			this.label10.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
 			this.label10.Name = "label10";
 			this.label10.Size = new System.Drawing.Size(108, 13);
@@ -208,7 +210,7 @@
 			// tbErrorProbability
 			// 
 			this.tbErrorProbability.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.tbErrorProbability.Location = new System.Drawing.Point(315, 26);
+			this.tbErrorProbability.Location = new System.Drawing.Point(515, 26);
 			this.tbErrorProbability.Name = "tbErrorProbability";
 			this.tbErrorProbability.Size = new System.Drawing.Size(55, 20);
 			this.tbErrorProbability.TabIndex = 31;
@@ -222,7 +224,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.pictureBoxFilter.Location = new System.Drawing.Point(6, 123);
 			this.pictureBoxFilter.Name = "pictureBoxFilter";
-			this.pictureBoxFilter.Size = new System.Drawing.Size(471, 331);
+			this.pictureBoxFilter.Size = new System.Drawing.Size(671, 331);
 			this.pictureBoxFilter.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			this.pictureBoxFilter.TabIndex = 33;
 			this.pictureBoxFilter.TabStop = false;
@@ -238,7 +240,7 @@
 			// btnGenerate
 			// 
 			this.btnGenerate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnGenerate.Location = new System.Drawing.Point(377, 94);
+			this.btnGenerate.Location = new System.Drawing.Point(577, 93);
 			this.btnGenerate.Name = "btnGenerate";
 			this.btnGenerate.Size = new System.Drawing.Size(100, 23);
 			this.btnGenerate.TabIndex = 35;
@@ -246,11 +248,35 @@
 			this.btnGenerate.UseVisualStyleBackColor = true;
 			this.btnGenerate.Click += new System.EventHandler(this.btnGenerate_Click);
 			// 
+			// btnGenerateSequenceToFile
+			// 
+			this.btnGenerateSequenceToFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnGenerateSequenceToFile.Enabled = false;
+			this.btnGenerateSequenceToFile.Location = new System.Drawing.Point(206, 7);
+			this.btnGenerateSequenceToFile.Name = "btnGenerateSequenceToFile";
+			this.btnGenerateSequenceToFile.Size = new System.Drawing.Size(157, 23);
+			this.btnGenerateSequenceToFile.TabIndex = 36;
+			this.btnGenerateSequenceToFile.Text = "Generate Sequence To File...";
+			this.btnGenerateSequenceToFile.UseVisualStyleBackColor = true;
+			this.btnGenerateSequenceToFile.Click += new System.EventHandler(this.btnGenerateSequenceToFile_Click);
+			// 
+			// cbCompress
+			// 
+			this.cbCompress.AutoSize = true;
+			this.cbCompress.Location = new System.Drawing.Point(579, 70);
+			this.cbCompress.Name = "cbCompress";
+			this.cbCompress.Size = new System.Drawing.Size(104, 17);
+			this.cbCompress.TabIndex = 37;
+			this.cbCompress.Text = "File compression";
+			this.cbCompress.UseVisualStyleBackColor = true;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(484, 461);
+			this.ClientSize = new System.Drawing.Size(684, 462);
+			this.Controls.Add(this.cbCompress);
+			this.Controls.Add(this.btnGenerateSequenceToFile);
 			this.Controls.Add(this.btnGenerate);
 			this.Controls.Add(this.label6);
 			this.Controls.Add(this.pictureBoxFilter);
@@ -260,17 +286,17 @@
 			this.Controls.Add(this.btnOpenFilter);
 			this.Controls.Add(this.label11);
 			this.Controls.Add(this.tbHashesPerElement);
-			this.Controls.Add(this.btnTestHashes);
+			this.Controls.Add(this.btnTestHashesFromFile);
 			this.Controls.Add(this.label5);
 			this.Controls.Add(this.label4);
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
-			this.Controls.Add(this.btnAddHashes);
+			this.Controls.Add(this.btnAddHashesFromFile);
 			this.Controls.Add(this.btnCreateFilter);
 			this.Controls.Add(this.labelElements);
 			this.Controls.Add(this.tbMaxElementsToHash);
-			this.MinimumSize = new System.Drawing.Size(500, 500);
+			this.MinimumSize = new System.Drawing.Size(700, 500);
 			this.Name = "MainForm";
 			this.Text = "Bloom Filter";
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxFilter)).EndInit();
@@ -284,13 +310,13 @@
 		private System.Windows.Forms.TextBox tbMaxElementsToHash;
 		private System.Windows.Forms.Label labelElements;
 		private System.Windows.Forms.Button btnCreateFilter;
-		private System.Windows.Forms.Button btnAddHashes;
+		private System.Windows.Forms.Button btnAddHashesFromFile;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.Label label5;
-		private System.Windows.Forms.Button btnTestHashes;
+		private System.Windows.Forms.Button btnTestHashesFromFile;
 		private System.Windows.Forms.Label label11;
 		private System.Windows.Forms.TextBox tbHashesPerElement;
 		private System.Windows.Forms.Button btnOpenFilter;
@@ -300,6 +326,8 @@
 		private System.Windows.Forms.PictureBox pictureBoxFilter;
 		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.Button btnGenerate;
+		private System.Windows.Forms.Button btnGenerateSequenceToFile;
+		private System.Windows.Forms.CheckBox cbCompress;
 	}
 }
 

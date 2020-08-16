@@ -64,8 +64,5 @@ namespace TestBloomFilter
 			}
 			return string.Format("{0:#,##0.##} {1}", size, denomination);
 		}
-
-
-
 	}
 }

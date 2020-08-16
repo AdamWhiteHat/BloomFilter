@@ -18,7 +18,7 @@ namespace BloomFilterCore
 			public SequenceGenerator(int wordSize, int startValue = 0, int incrementValue = 1)
 			{
 				size = wordSize;
-				counter = startValue - incrementValue;
+				counter = startValue;
 				increment = incrementValue;
 			}
 
@@ -28,7 +28,6 @@ namespace BloomFilterCore
 				return counter.ToString().PadLeft(size, (char)zeroByte);
 			}
 		}
-
 
 		public class RandomGenerator
 		{
@@ -50,18 +49,14 @@ namespace BloomFilterCore
 					Size++;
 					counter = 0;
 				}
-				return Encoding.ASCII.GetString(rand.NextBytes(Size));
+				return Encoding.UTF8.GetString(rand.NextBytes(Size));
 			}
 		}
-
-
 
 		private string GetRepeat(int wordSize, int value = 0)
 		{
 			byte[] result = Enumerable.Repeat((byte)value, wordSize).ToArray();
 			return ByteBits.GetString(result);
 		}
-
-
 	}
 }

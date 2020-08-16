@@ -71,14 +71,16 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BloomFilter.cs" />
+    <Compile Include="BigIntegerExtensionMethods.cs" />
     <Compile Include="Hashes\BitShuffle.cs" />
     <Compile Include="Hashes\BloomHash.cs" />
     <Compile Include="Utilities\ByteBits.cs" />
@@ -87,6 +89,9 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Utilities\ByteGenerator.cs" />
     <Compile Include="Utilities\CryptoRandom.cs" />
+    <Compile Include="Utilities\Factorization.cs" />
+    <Compile Include="Utilities\PrimeFactory.cs" />
+    <Compile Include="Utilities\Range.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BloomFilter.Serializer.cs" />
