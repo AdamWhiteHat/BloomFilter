@@ -121,14 +121,11 @@ namespace BloomFilterCore
 
 		private static int CalculateFilterSize(int maxElementsToHash, double probabilityFloor)
 		{
-			double top = maxElementsToHash * Math.Log(probabilityFloor);
-			double bottom = Math.Pow(Math.Log(2), 2);
+			decimal top = (decimal)maxElementsToHash * (decimal)Math.Abs(Math.Log(probabilityFloor));
+			decimal bottom = (decimal)Math.Pow(Math.Log(2), 2.0d);
 
-			top = Math.Abs(top);
-			bottom = Math.Abs(bottom);
-
-			double result = top / bottom;
-			return (int)Math.Round(result);
+			decimal result = top / bottom;
+			return (int)Math.Ceiling(result);
 		}
 
 		private static int NextSquareDivisibleByEight(int number)
@@ -157,9 +154,9 @@ namespace BloomFilterCore
 		private static int CalculateHashesPerElement(int sizeOfArray, int maxElementsToHash)
 		{
 			double rhs = sizeOfArray / maxElementsToHash;
-			double hashesPerElement = rhs * Math.Log(2);
+			double hashesPerElement = Math.Abs(rhs * Math.Log(2));
 
-			double result = Math.Round(Math.Abs(hashesPerElement));
+			double result = Math.Round(hashesPerElement);
 			return (int)result;
 		}
 
@@ -246,6 +243,7 @@ namespace BloomFilterCore
 
 			return result.ToArray();
 		}
+
 		private static BigInteger CalculateValue(string input)
 		{
 			byte[] bytes = Encoding.UTF8.GetBytes(input);
