@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace TestBloomFilter
+namespace UnitTestBloomFilter
 {
 	public class FormHelper
 	{
@@ -13,26 +13,47 @@ namespace TestBloomFilter
 
 		public static string OpenFileDlg()
 		{
+			return OpenFileDlg(string.Empty);
+		}
+
+		public static string OpenFileDlg(string filter)
+		{
+			string result = string.Empty;
 			using (OpenFileDialog openDlg = new OpenFileDialog())
 			{
+				if (!string.IsNullOrWhiteSpace(filter))
+				{
+					openDlg.Filter = filter;
+				}
 				if (openDlg.ShowDialog() == DialogResult.OK)
 				{
-					return openDlg.FileName;
+					result = openDlg.FileName;
 				}
 			}
-			return string.Empty;
+			return result;
 		}
 
 		public static string SaveFileDlg()
 		{
+			return SaveFileDlg(string.Empty);
+		}
+
+		public static string SaveFileDlg(string filter)
+		{
+			string result = string.Empty;
 			using (SaveFileDialog saveDlg = new SaveFileDialog())
 			{
+				if (!string.IsNullOrWhiteSpace(filter))
+				{
+					saveDlg.Filter = filter;
+				}
 				if (saveDlg.ShowDialog() == DialogResult.OK)
 				{
-					return saveDlg.FileName;
+
+					result = saveDlg.FileName;
 				}
 			}
-			return string.Empty;
+			return result;
 		}
 
 		#endregion
@@ -63,6 +84,20 @@ namespace TestBloomFilter
 				}
 			}
 			return string.Format("{0:#,##0.##} {1}", size, denomination);
+		}
+
+		public static string FormatTimeSpan(TimeSpan timeSpan)
+		{
+			if (timeSpan.TotalMilliseconds == 0) { return "0.0 ms"; }
+			if (timeSpan.TotalMinutes < 1) { return timeSpan.ToString(@"ss\.FFFFFFF"); }
+			List<string> parts = new List<string>();
+			if (timeSpan.Days > 0) { parts.Add($"{timeSpan.Days}d"); }
+			if (timeSpan.Hours > 0) { parts.Add($"{timeSpan.Hours}h"); }
+			if (timeSpan.Minutes > 0) { parts.Add($"{timeSpan.Minutes}m"); }
+			if (timeSpan.Seconds > 0) { parts.Add($"{timeSpan.Seconds}s"); }
+			if (timeSpan.Milliseconds > 0) { parts.Add($"{timeSpan.ToString("FFFFFFF")}ms"); }
+			else if (timeSpan.TotalMilliseconds < 1) { parts.Add($"{timeSpan.TotalMilliseconds}ms"); }
+			return string.Join(" ", parts);
 		}
 	}
 }

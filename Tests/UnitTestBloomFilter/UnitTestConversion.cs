@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using BloomFilterCore;
-using BloomFilterCore.Hashes;
 using BloomFilterCore.Serialization;
 
-namespace TestByteBits
+namespace UnitTestBloomFilter
 {
 	[TestClass]
 	public class UnitTestConversion
 	{
+		public TestContext TestContext { get { return m_testContext; } set { m_testContext = value; } }
+		private TestContext m_testContext;
+
 		private static readonly List<byte> SampleByteArray = Enumerable.Range(0, 100).Select(b => BitConverter.GetBytes(b).First()).ToList();
 
 		[TestMethod]
@@ -25,7 +26,7 @@ namespace TestByteBits
 
 			CompareBytes(input, output);
 		}
-				
+
 		private void CompareBytes(byte[] input, byte[] output)
 		{
 			byte counter = 0;

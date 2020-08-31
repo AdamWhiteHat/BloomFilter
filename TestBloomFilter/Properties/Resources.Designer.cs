@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TestBloomFilter.Properties {
+namespace UnitTestBloomFilter.Properties {
     using System;
     
     

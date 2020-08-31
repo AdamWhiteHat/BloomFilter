@@ -48,17 +48,11 @@ Temporary Items
 
 TestResults/*
 
-BloomFilter/obj/*
-BloomFilter/bin/*
-
-TestBloomFilter/obj/*
-TestBloomFilter/bin/*
-
-Tests/TestByteBits/obj/*
-Tests/TestByteBits/bin/*
-
 *.suo
 *.pdb
 *.scgdat
 *.dat
 /.vs
+obj/
+bin/
+

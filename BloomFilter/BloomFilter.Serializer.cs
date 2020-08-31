@@ -17,9 +17,6 @@ namespace BloomFilterCore.Serialization
 {
 	public class BloomFilterSerializer
 	{
-		private static int _intSize = sizeof(Int32);
-		private static int _doubleSize = sizeof(double);
-
 		public static void Save(BloomFilter filter, string filename, bool compressed = false)
 		{
 			if (string.IsNullOrWhiteSpace(filename)) { throw new ArgumentException(nameof(filename)); }
@@ -101,6 +98,7 @@ namespace BloomFilterCore.Serialization
 				}
 			}
 		}
+
 		private static class BinarySerializer
 		{
 			public static byte[] Serialize<T>(T obj)

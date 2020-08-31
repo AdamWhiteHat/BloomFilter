@@ -1,4 +1,4 @@
-﻿namespace TestBloomFilter
+﻿namespace UnitTestBloomFilter
 {
 	partial class MainForm
 	{
@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.tbMaxElementsToHash = new System.Windows.Forms.TextBox();
 			this.labelElements = new System.Windows.Forms.Label();
 			this.btnCreateFilter = new System.Windows.Forms.Button();
@@ -45,11 +46,14 @@
 			this.label10 = new System.Windows.Forms.Label();
 			this.tbErrorProbability = new System.Windows.Forms.TextBox();
 			this.pictureBoxFilter = new System.Windows.Forms.PictureBox();
+			this.contextMenuPictureBox = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.toolStripSaveImage = new System.Windows.Forms.ToolStripMenuItem();
 			this.label6 = new System.Windows.Forms.Label();
 			this.btnGenerate = new System.Windows.Forms.Button();
 			this.btnGenerateSequenceToFile = new System.Windows.Forms.Button();
 			this.cbCompress = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxFilter)).BeginInit();
+			this.contextMenuPictureBox.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tbMaxElementsToHash
@@ -222,12 +226,30 @@
 			this.pictureBoxFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.pictureBoxFilter.ContextMenuStrip = this.contextMenuPictureBox;
 			this.pictureBoxFilter.Location = new System.Drawing.Point(6, 123);
 			this.pictureBoxFilter.Name = "pictureBoxFilter";
 			this.pictureBoxFilter.Size = new System.Drawing.Size(671, 331);
 			this.pictureBoxFilter.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			this.pictureBoxFilter.TabIndex = 33;
 			this.pictureBoxFilter.TabStop = false;
+			// 
+			// contextMenuPictureBox
+			// 
+			this.contextMenuPictureBox.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripSaveImage});
+			this.contextMenuPictureBox.Name = "contextMenuPictureBox";
+			this.contextMenuPictureBox.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+			this.contextMenuPictureBox.ShowImageMargin = false;
+			this.contextMenuPictureBox.Size = new System.Drawing.Size(119, 26);
+			this.contextMenuPictureBox.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuPictureBox_Opening);
+			// 
+			// toolStripSaveImage
+			// 
+			this.toolStripSaveImage.Name = "toolStripSaveImage";
+			this.toolStripSaveImage.Size = new System.Drawing.Size(155, 22);
+			this.toolStripSaveImage.Text = "Save Image...";
+			this.toolStripSaveImage.Click += new System.EventHandler(this.toolStripSaveImage_Click);
 			// 
 			// label6
 			// 
@@ -262,6 +284,7 @@
 			// 
 			// cbCompress
 			// 
+			this.cbCompress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.cbCompress.AutoSize = true;
 			this.cbCompress.Location = new System.Drawing.Point(579, 70);
 			this.cbCompress.Name = "cbCompress";
@@ -300,6 +323,7 @@
 			this.Name = "MainForm";
 			this.Text = "Bloom Filter";
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxFilter)).EndInit();
+			this.contextMenuPictureBox.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -328,6 +352,8 @@
 		private System.Windows.Forms.Button btnGenerate;
 		private System.Windows.Forms.Button btnGenerateSequenceToFile;
 		private System.Windows.Forms.CheckBox cbCompress;
+		private System.Windows.Forms.ContextMenuStrip contextMenuPictureBox;
+		private System.Windows.Forms.ToolStripMenuItem toolStripSaveImage;
 	}
 }
 
