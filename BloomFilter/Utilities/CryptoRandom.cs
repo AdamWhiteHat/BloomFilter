@@ -12,12 +12,12 @@ namespace BloomFilterCore
 		private bool IsDisposed = false;
 		private byte[] rngBytes8 = new byte[8];
 		private byte[] rngBytes4 = new byte[4];
-		private RNGCryptoServiceProvider rngCsp;
+		private RNGCryptoServiceProvider _crng;
 
 		public CryptoRandom()
 		{
 			disposeCheck();
-			rngCsp = new RNGCryptoServiceProvider();
+			_crng = new RNGCryptoServiceProvider();
 		}
 
 		public void Dispose()
@@ -25,21 +25,21 @@ namespace BloomFilterCore
 			if (!IsDisposed)
 			{
 				IsDisposed = true;
-				if (rngCsp != null)
+				if (_crng != null)
 				{
-					rngCsp.Dispose();
-					rngCsp = null;
+					_crng.Dispose();
+					_crng = null;
 				}
 
 				if (rngBytes8 != null)
 				{
-					rngBytes8 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+					ClearBuffer(rngBytes8);
 					rngBytes8 = null;
 				}
 
 				if (rngBytes4 != null)
 				{
-					rngBytes4 = new byte[] { 0, 0, 0, 0 };
+					ClearBuffer(rngBytes4);
 					rngBytes4 = null;
 				}
 			}
@@ -53,31 +53,58 @@ namespace BloomFilterCore
 			}
 		}
 
+		private static void ClearBuffer(byte[] buffer)
+		{
+			if (buffer != null)
+			{
+				int counter = buffer.Length - 1;
+				while (counter >= 0)
+				{
+					buffer[counter] = byte.MinValue;
+					counter--;
+				}
+				counter = 0;
+			}
+		}
+
 		public byte[] NextBytes(int quantity)
 		{
 			disposeCheck();
-			byte[] result = Enumerable.Repeat((byte)0, quantity).ToArray();			
-			rngCsp.GetBytes(result);
+			byte[] result = new byte[quantity];
+			_crng.GetBytes(result);
 			return result;
 		}
 
 		public int Next(int maxValue)
 		{
-			return Math.Abs(Next() % maxValue);
+			disposeCheck();
+			return Next(0, maxValue);
 		}
 
-		public int Next()
+		public int Next(int lower, int upper)
 		{
 			disposeCheck();
-			rngCsp.GetBytes(rngBytes4);
-			return Math.Abs(BitConverter.ToInt32(rngBytes4, 0));
+			if (lower > upper) { throw new ArgumentOutOfRangeException($"{nameof(upper)} must be greater than {nameof(lower)}"); }
+
+			int range;
+			while (true)
+			{
+				range = lower + (int)((upper - lower) * NextDouble());
+				if (range >= lower && range <= upper)
+				{
+					return range;
+				}
+			}
 		}
 
 		public double NextDouble()
 		{
 			disposeCheck();
-			rngCsp.GetBytes(rngBytes8);
-			return Math.Abs(BitConverter.ToInt64(rngBytes8, 0) * (1.0 / long.MaxValue));
+			_crng.GetBytes(rngBytes8);
+			ulong u64 = BitConverter.ToUInt64(rngBytes8, 0);
+			double result = (double)((u64 + 1.0) * 5.421010862427522E-20);
+			ClearBuffer(rngBytes8);
+			return result;
 		}
 	}
 }
