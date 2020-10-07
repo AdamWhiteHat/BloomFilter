@@ -52,8 +52,12 @@
 			this.btnGenerate = new System.Windows.Forms.Button();
 			this.btnGenerateSequenceToFile = new System.Windows.Forms.Button();
 			this.cbCompress = new System.Windows.Forms.CheckBox();
+			this.progressBarBusy = new System.Windows.Forms.ProgressBar();
+			this.panelWorkingAnimation = new System.Windows.Forms.Panel();
+			this.label7 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxFilter)).BeginInit();
 			this.contextMenuPictureBox.SuspendLayout();
+			this.panelWorkingAnimation.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tbMaxElementsToHash
@@ -227,9 +231,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.pictureBoxFilter.ContextMenuStrip = this.contextMenuPictureBox;
-			this.pictureBoxFilter.Location = new System.Drawing.Point(6, 123);
+			this.pictureBoxFilter.Location = new System.Drawing.Point(6, 122);
 			this.pictureBoxFilter.Name = "pictureBoxFilter";
-			this.pictureBoxFilter.Size = new System.Drawing.Size(671, 331);
+			this.pictureBoxFilter.Size = new System.Drawing.Size(671, 332);
 			this.pictureBoxFilter.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			this.pictureBoxFilter.TabIndex = 33;
 			this.pictureBoxFilter.TabStop = false;
@@ -247,7 +251,7 @@
 			// toolStripSaveImage
 			// 
 			this.toolStripSaveImage.Name = "toolStripSaveImage";
-			this.toolStripSaveImage.Size = new System.Drawing.Size(155, 22);
+			this.toolStripSaveImage.Size = new System.Drawing.Size(118, 22);
 			this.toolStripSaveImage.Text = "Save Image...";
 			this.toolStripSaveImage.Click += new System.EventHandler(this.toolStripSaveImage_Click);
 			// 
@@ -293,16 +297,49 @@
 			this.cbCompress.Text = "File compression";
 			this.cbCompress.UseVisualStyleBackColor = true;
 			// 
+			// progressBarBusy
+			// 
+			this.progressBarBusy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.progressBarBusy.Location = new System.Drawing.Point(21, 25);
+			this.progressBarBusy.Name = "progressBarBusy";
+			this.progressBarBusy.Size = new System.Drawing.Size(337, 23);
+			this.progressBarBusy.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+			this.progressBarBusy.TabIndex = 38;
+			this.progressBarBusy.Value = 50;
+			// 
+			// panelWorkingAnimation
+			// 
+			this.panelWorkingAnimation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.panelWorkingAnimation.Controls.Add(this.label7);
+			this.panelWorkingAnimation.Controls.Add(this.progressBarBusy);
+			this.panelWorkingAnimation.Location = new System.Drawing.Point(153, 161);
+			this.panelWorkingAnimation.Name = "panelWorkingAnimation";
+			this.panelWorkingAnimation.Size = new System.Drawing.Size(378, 55);
+			this.panelWorkingAnimation.TabIndex = 39;
+			// 
+			// label7
+			// 
+			this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+			this.label7.AutoSize = true;
+			this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label7.Location = new System.Drawing.Point(154, 6);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(70, 15);
+			this.label7.TabIndex = 39;
+			this.label7.Text = "Working . . .";
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(684, 462);
+			this.Controls.Add(this.panelWorkingAnimation);
 			this.Controls.Add(this.cbCompress);
 			this.Controls.Add(this.btnGenerateSequenceToFile);
 			this.Controls.Add(this.btnGenerate);
 			this.Controls.Add(this.label6);
-			this.Controls.Add(this.pictureBoxFilter);
 			this.Controls.Add(this.label10);
 			this.Controls.Add(this.tbErrorProbability);
 			this.Controls.Add(this.btnSaveFilter);
@@ -319,11 +356,14 @@
 			this.Controls.Add(this.btnCreateFilter);
 			this.Controls.Add(this.labelElements);
 			this.Controls.Add(this.tbMaxElementsToHash);
+			this.Controls.Add(this.pictureBoxFilter);
 			this.MinimumSize = new System.Drawing.Size(700, 500);
 			this.Name = "MainForm";
 			this.Text = "Bloom Filter";
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxFilter)).EndInit();
 			this.contextMenuPictureBox.ResumeLayout(false);
+			this.panelWorkingAnimation.ResumeLayout(false);
+			this.panelWorkingAnimation.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -354,6 +394,9 @@
 		private System.Windows.Forms.CheckBox cbCompress;
 		private System.Windows.Forms.ContextMenuStrip contextMenuPictureBox;
 		private System.Windows.Forms.ToolStripMenuItem toolStripSaveImage;
+		private System.Windows.Forms.ProgressBar progressBarBusy;
+		private System.Windows.Forms.Panel panelWorkingAnimation;
+		private System.Windows.Forms.Label label7;
 	}
 }
 

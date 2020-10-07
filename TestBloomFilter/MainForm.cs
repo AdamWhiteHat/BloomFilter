@@ -3,11 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Drawing;
 using System.Numerics;
+using System.Threading;
 using System.Collections;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using BloomFilterCore;
@@ -17,6 +19,7 @@ namespace UnitTestBloomFilter
 {
 	public partial class MainForm : Form
 	{
+		private CryptoRandom rand;
 		private bool IsFilterOpen = false;
 		private BloomFilter filter = null;
 		private BackgroundWorker addHashesWorker;
@@ -29,17 +32,19 @@ namespace UnitTestBloomFilter
 		private static readonly string buttonText_CloseFilter = "Close Filter";
 		private static readonly string buttonText_GenerateHash = "Generate Hash";
 		private static readonly string buttonText_GenerateStop = "Stop Generating";
-		private static string defaultMaxElements;
-		private static string defaultHashesPerElement;
-		private static string defaultErrorProbability;
+		//private static string defaultMaxElements;
+		//private static string defaultHashesPerElement;
+		//private static string defaultErrorProbability;
 
 		public MainForm()
 		{
 			InitializeComponent();
 
-			defaultMaxElements = tbMaxElementsToHash.Text;
-			defaultHashesPerElement = tbHashesPerElement.Text;
-			defaultErrorProbability = tbErrorProbability.Text;
+			rand = new CryptoRandom();
+
+			//defaultMaxElements = tbMaxElementsToHash.Text;
+			//defaultHashesPerElement = tbHashesPerElement.Text;
+			//defaultErrorProbability = tbErrorProbability.Text;
 
 			addHashesWorker = new BackgroundWorker();
 			addHashesWorker.WorkerSupportsCancellation = true;
@@ -50,6 +55,8 @@ namespace UnitTestBloomFilter
 			generateHashesWorker.WorkerSupportsCancellation = true;
 			generateHashesWorker.DoWork += generateHashesWorker_DoWork;
 			generateHashesWorker.RunWorkerCompleted += generateHashesWorker_RunWorkerCompleted;
+
+			panelWorkingAnimation.Visible = false;
 		}
 
 		private Bitmap ToBitmap(BitArray bitArray)
@@ -135,10 +142,6 @@ namespace UnitTestBloomFilter
 				filter = null;
 				pictureBoxFilter.Image = null;
 
-				tbMaxElementsToHash.Text = defaultMaxElements;
-				tbHashesPerElement.Text = defaultHashesPerElement;
-				tbErrorProbability.Text = defaultErrorProbability;
-
 				SetLoadedStatus(false);
 			}
 		}
@@ -152,22 +155,21 @@ namespace UnitTestBloomFilter
 				return;
 			}
 
-			string filename = FormHelper.SaveFileDlg();
+			string filename = FormHelper.SaveFileDlg(FormHelper.FiletypeFilters.SequenceFiles);
 			if (!string.IsNullOrWhiteSpace(filename))
 			{
-				CryptoRandom rand = new CryptoRandom();
 				int randomNumber = rand.Next(50000);
 
 				BigInteger randomIncrementValue = PrimeHelper.GetPreviousPrime(randomNumber);
 
-				ByteGenerator.SequenceGenerator sequence = new ByteGenerator.SequenceGenerator(4, 1, (int)randomIncrementValue);
+				ByteGenerator.SequenceGenerator randomSequence = new ByteGenerator.SequenceGenerator(8, randomNumber, (int)randomIncrementValue);
 
 				int counter = 0;
 				int maxElements = filter.MaxElementsToHash / 2;
 				List<string> elementsCollection = new List<string>();
 				while (counter < maxElements)
 				{
-					string nextElement = sequence.GetNext();
+					string nextElement = randomSequence.GetNext();
 					elementsCollection.Add(nextElement);
 					counter++;
 				}
@@ -187,10 +189,11 @@ namespace UnitTestBloomFilter
 					return;
 				}
 
-				string filename = FormHelper.OpenFileDlg();
+				string filename = FormHelper.OpenFileDlg(FormHelper.FiletypeFilters.SequenceFiles);
 				if (!string.IsNullOrWhiteSpace(filename))
 				{
 					btnAddHashesFromFile.Text = buttonText_Cancel;
+
 					addHashesWorker.RunWorkerAsync(filename);
 				}
 			}
@@ -198,12 +201,17 @@ namespace UnitTestBloomFilter
 
 		private void btnTestHashesFromFile_Click(object sender, EventArgs e)
 		{
-			string filename = FormHelper.OpenFileDlg();
-			if (!string.IsNullOrWhiteSpace(filename))
+			string filename = FormHelper.OpenFileDlg(FormHelper.FiletypeFilters.SequenceFiles);
+			if (string.IsNullOrWhiteSpace(filename))
 			{
-				TimeSpan totalRuntimeTotal = TimeSpan.Zero;
+				return;
+			}
+
+			ShowWorkingAnimation();
+
+			var testHashingElements = Task.Factory.StartNew(() =>
+			{
 				TimeSpan filterAddTimeTotal = TimeSpan.Zero;
-				TimeSpan averageAddTime = TimeSpan.Zero;
 
 				Stopwatch totalRuntimeTimer = Stopwatch.StartNew();
 				Stopwatch filterAddTimer = Stopwatch.StartNew();
@@ -222,7 +230,7 @@ namespace UnitTestBloomFilter
 				while (counter < max)
 				{
 					filterAddTimer.Restart();
-					filterContains = filter.Contains(lines[counter]);
+					filterContains = filter.ContainsElement(lines[counter]);
 					filterAddTimeTotal = filterAddTimeTotal.Add(filterAddTimer.Elapsed);
 
 					if (filterContains)
@@ -237,7 +245,9 @@ namespace UnitTestBloomFilter
 					counter++;
 				}
 
-				ByteGenerator.RandomGenerator randomGenerator = new ByteGenerator.RandomGenerator();
+				int randomNumber = rand.Next(50000);
+
+				ByteGenerator.SequenceGenerator randomGenerator = new ByteGenerator.SequenceGenerator(8, counter, randomNumber);
 
 				int randomCounter = 0;
 				int falsePositiveCorrect = 0;
@@ -248,7 +258,7 @@ namespace UnitTestBloomFilter
 					if (!lines.Contains(nextRandom))
 					{
 						filterAddTimer.Restart();
-						filterContains = filter.Contains(nextRandom);
+						filterContains = filter.ContainsElement(nextRandom);
 						filterAddTimeTotal = filterAddTimeTotal.Add(filterAddTimer.Elapsed);
 
 						if (filterContains)
@@ -264,14 +274,14 @@ namespace UnitTestBloomFilter
 					}
 				}
 
-				totalRuntimeTotal = totalRuntimeTimer.Elapsed;
+				TimeSpan totalRuntimeTotal = totalRuntimeTimer.Elapsed;
 
 				int totalCounter = counter + randomCounter;
 				long ticks = filterAddTimeTotal.Ticks / totalCounter;
-				averageAddTime = new TimeSpan(ticks);
+				TimeSpan averageAddTime = new TimeSpan(ticks);
 
 				double membershipRate = (double)membershipCorrect / (double)membershipIncorrect;
-				double falsePositiveRate = (double)falsePositiveCorrect / (double)falsePositiveIncorrect;
+				double falsePositiveRate = (double)falsePositiveIncorrect / (double)falsePositiveCorrect;
 
 				if (double.IsInfinity(membershipRate))
 				{
@@ -282,30 +292,37 @@ namespace UnitTestBloomFilter
 					falsePositiveRate = 100.0d;
 				}
 
-				string correctnessReport = string.Format("Membership Correct/Incorrect: {0}/{1} ({2:0.00}%); False Positives: {3}/{4} ({5:0.00}%)", membershipCorrect, membershipIncorrect, membershipRate, falsePositiveCorrect, falsePositiveIncorrect, falsePositiveRate);
+				string correctnessReport = string.Format("Membership Correct/Incorrect: {0}/{1} ({2:0.00}%); False Positives: {3}/{4} ({5:0.00}%)", membershipCorrect, membershipIncorrect, membershipRate, falsePositiveIncorrect, falsePositiveCorrect, falsePositiveRate);
 
 				string timersReport =
 					$"Total runtime: {FormHelper.FormatTimeSpan(totalRuntimeTotal)} (Contains elements: {FormHelper.FormatTimeSpan(filterAddTimeTotal)} ({FormHelper.FormatTimeSpan(averageAddTime)} avg.))";
 
 				SetControlText(label5, correctnessReport);
 				SetControlText(label6, timersReport);
-			}
+			});
+
+			var hideLoadingAnimation = testHashingElements.ContinueWith((task) => HideWorkingAnimation());
 		}
 
 		private void btnGenerate_Click(object sender, EventArgs e)
 		{
-			if (IsFilterOpen)
+			if (!IsFilterOpen)
 			{
-				if (filter == null || generateHashesWorker == null) { throw new ArgumentNullException(); }
-				if (generateHashesWorker.IsBusy)
-				{
-					generateHashesWorker.CancelAsync();
-				}
-				else
-				{
-					SetControlText(btnGenerate, buttonText_GenerateStop);
-					generateHashesWorker.RunWorkerAsync();
-				}
+				return;
+			}
+			if (filter == null || generateHashesWorker == null)
+			{
+				throw new ArgumentNullException();
+			}
+
+			if (generateHashesWorker.IsBusy)
+			{
+				generateHashesWorker.CancelAsync();
+			}
+			else
+			{
+				SetControlText(btnGenerate, buttonText_GenerateStop);
+				generateHashesWorker.RunWorkerAsync();
 			}
 		}
 
@@ -313,6 +330,8 @@ namespace UnitTestBloomFilter
 
 		private void addHashesWorker_DoWork(object sender, DoWorkEventArgs e)
 		{
+			ShowWorkingAnimation();
+
 			TimeSpan readFileTimeTotal = TimeSpan.Zero;
 			TimeSpan filterAddTimeTotal = TimeSpan.Zero;
 
@@ -337,7 +356,7 @@ namespace UnitTestBloomFilter
 				}
 
 				filterAddTimer.Restart();
-				filter.Add(line);
+				filter.AddElement(line);
 				filterAddTimeTotal = filterAddTimeTotal.Add(filterAddTimer.Elapsed);
 
 				/*
@@ -371,15 +390,16 @@ namespace UnitTestBloomFilter
 			SetControlText(label6, timersReport);
 		}
 
-
 		void generateHashesWorker_DoWork(object sender, DoWorkEventArgs e)
 		{
+			ShowWorkingAnimation();
+
 			ByteGenerator.RandomGenerator sequenceGenerator = new ByteGenerator.RandomGenerator();
 
 			int counter = 0;
 			while (!generateHashesWorker.CancellationPending)
 			{
-				filter.Add(sequenceGenerator.GetNext());
+				filter.AddElement(sequenceGenerator.GetNext());
 
 				/*
 				if (counter % 1000 == 0)
@@ -403,11 +423,11 @@ namespace UnitTestBloomFilter
 
 		#endregion
 
-		#region Open & Save
+		#region Open & Save Bloom Filter
 
 		private void btnOpenFilter_Click(object sender, EventArgs e)
 		{
-			string file = FormHelper.OpenFileDlg();
+			string file = FormHelper.OpenFileDlg(FormHelper.FiletypeFilters.BloomFiles);
 			if (!string.IsNullOrWhiteSpace(file))
 			{
 				filter = BloomFilterSerializer.Load(file, cbCompress.Checked);
@@ -421,7 +441,7 @@ namespace UnitTestBloomFilter
 
 		private void btnSaveFilter_Click(object sender, EventArgs e)
 		{
-			string file = FormHelper.SaveFileDlg();
+			string file = FormHelper.SaveFileDlg(FormHelper.FiletypeFilters.BloomFiles);
 			if (!string.IsNullOrWhiteSpace(file))
 			{
 				BloomFilterSerializer.Save(filter, file, cbCompress.Checked);
@@ -432,39 +452,58 @@ namespace UnitTestBloomFilter
 
 		#region Refresh Methods
 
+		private void ShowWorkingAnimation()
+		{
+			SetControlVisibility(panelWorkingAnimation, true);
+			SetControlVisibility(pictureBoxFilter, false);
+		}
+
+		private void HideWorkingAnimation()
+		{
+			SetControlVisibility(pictureBoxFilter, true);
+			SetControlVisibility(panelWorkingAnimation, false);
+		}
+
 		private void RefreshControls()
 		{
 			if (filter == null) { return; }
-			if (this.InvokeRequired) { this.Invoke(new MethodInvoker(() => RefreshControls())); }
-			else
-			{
-				label1.Text = string.Format("{0:n0} bits", filter.FilterSizeInBits);
-				label2.Text = FormHelper.FormatFilesize(filter.FilterSizeInBits);
-				label3.Text = string.Concat(filter.ElementsHashed.ToString(), " Elements hashed");
-				label4.Text = filter.ToString();
 
-				if (IsFilterOpen)
-				{
-					pictureBoxFilter.Image = ToBitmap(filter.FilterArray);
-				}
+			if (IsFilterOpen)
+			{
+				var paintBitmap = Task.Factory.StartNew(() => (Image)ToBitmap(filter.FilterArray));
+				var setPictureBox = paintBitmap.ContinueWith((image) => { SetPictureBoxImage(pictureBoxFilter, image.Result); HideWorkingAnimation(); });
 			}
+
+			SetControlText(label1, string.Format("{0:n0} bits", filter.FilterSizeInBits));
+			SetControlText(label2, FormHelper.FormatFilesize(filter.FilterSizeInBits));
+			SetControlText(label3, string.Concat(filter.ElementsHashed.ToString(), " Elements hashed"));
+			SetControlText(label4, filter.ToString());
 		}
 
-		private void RefreshLabel()
+		private void SetPictureBoxImage(PictureBox control, Image image)
 		{
-			if (this.InvokeRequired) { this.Invoke(new MethodInvoker(() => RefreshLabel())); }
+			if (this.InvokeRequired) { this.Invoke(new MethodInvoker(() => SetPictureBoxImage(control, image))); }
 			else
 			{
-				label3.Text = string.Concat(filter.ElementsHashed.ToString(), " Elements hashed");
+				control.Image = image;
 			}
 		}
 
 		private void SetControlText(Control control, string text)
 		{
-			if (control.InvokeRequired) { control.Invoke(new MethodInvoker(() => SetControlText(control, text))); }
+			if (this.InvokeRequired) { this.Invoke(new MethodInvoker(() => SetControlText(control, text))); }
 			else
 			{
 				control.Text = text;
+			}
+		}
+
+		private void SetControlVisibility(Control control, bool visible)
+		{
+			if (this.InvokeRequired) { this.Invoke(new MethodInvoker(() => SetControlVisibility(control, visible))); }
+			else
+			{
+				control.Visible = visible;
 			}
 		}
 
@@ -477,7 +516,7 @@ namespace UnitTestBloomFilter
 				return;
 			}
 
-			string filename = FormHelper.SaveFileDlg("Bitmap files (*.bmp)|*.bmp|All files (*.*)|*.*");
+			string filename = FormHelper.SaveFileDlg(FormHelper.FiletypeFilters.BitmapFiles);
 			if (!string.IsNullOrWhiteSpace(filename))
 			{
 				pictureBoxFilter.Image.Save(filename, ImageFormat.Bmp);

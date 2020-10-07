@@ -10,35 +10,44 @@ namespace BloomFilterCore
 	{
 		public class SequenceGenerator
 		{
+			private CryptoRandom _rand;
 			private static byte zeroByte = 0;
 			private int increment = 1;
 			private int counter = 0;
 			private int size = 4;
+			private int digitSize = 10000;
 
 			public SequenceGenerator(int wordSize, int startValue = 0, int incrementValue = 1)
 			{
+				_rand = new CryptoRandom();
 				size = wordSize;
 				counter = startValue;
 				increment = incrementValue;
+				digitSize = (int)Math.Pow(10, size);
 			}
 
 			public string GetNext()
-			{
+			{				
 				counter += increment;
-				return counter.ToString().PadLeft(size, (char)zeroByte);
+				return Math.Abs(_rand.Next(digitSize)).ToString().PadLeft(size, '1');
 			}
 		}
 
 		public class RandomGenerator
 		{
-			private CryptoRandom rand;
+			private CryptoRandom _rand;
 			private int counter = 0;
 			public int Size { get; private set; }
 
 			public RandomGenerator()
+				: this(4)
 			{
-				Size = 1;
-				rand = new CryptoRandom();
+			}
+
+			public RandomGenerator(int size)
+			{
+				Size = size;
+				_rand = new CryptoRandom();
 			}
 
 			public string GetNext()
@@ -49,7 +58,7 @@ namespace BloomFilterCore
 					Size++;
 					counter = 0;
 				}
-				return Encoding.UTF8.GetString(rand.NextBytes(Size));
+				return Encoding.UTF8.GetString(_rand.NextBytes(Size));
 			}
 		}
 

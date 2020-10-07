@@ -11,6 +11,13 @@ namespace UnitTestBloomFilter
 	{
 		#region File Dialogs
 
+		public static class FiletypeFilters
+		{
+			public static string BloomFiles = "Bloom filter files (*.bloom)|*.bloom|All files (*.*)|*.*";
+			public static string SequenceFiles = "Sequence files (*.sequence)|*.sequence|All files (*.*)|*.*";
+			public static string BitmapFiles = "Bitmap files (*.bmp)|*.bmp|All files (*.*)|*.*";
+		}
+
 		public static string OpenFileDlg()
 		{
 			return OpenFileDlg(string.Empty);
