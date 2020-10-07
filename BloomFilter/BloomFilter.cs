@@ -11,6 +11,7 @@ namespace BloomFilterCore
 	using HashProviders;
 
 	[KnownType(typeof(MultiplicativeGroupHashProvider))]
+	[KnownType(typeof(StreamCipherHashProvider))]
 	[DataContract]
 	public class BloomFilter
 	{

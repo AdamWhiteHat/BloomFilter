@@ -8,7 +8,6 @@ using System.Runtime.Serialization;
 
 namespace BloomFilterCore.HashProviders
 {
-	[KnownType(typeof(MultiplicativeGroupHashProvider))]
 	[DataContract]
 	public class MultiplicativeGroupHashProvider : IHashProvider
 	{
