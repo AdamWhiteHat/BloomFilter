@@ -81,6 +81,8 @@
     <Compile Include="BloomFilter.cs" />
     <Compile Include="Hashes\BitShuffle.cs" />
     <Compile Include="Hashes\BloomHash.cs" />
+    <Compile Include="Hashes\MultipleHashes.cs" />
+    <Compile Include="Hashes\MurMurHash3.cs" />
     <Compile Include="Utilities\ByteBits.cs" />
     <Compile Include="Hashes\RC4TableHash.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
