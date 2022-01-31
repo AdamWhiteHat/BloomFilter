@@ -59,7 +59,7 @@ namespace UnitTestBloomFilter
 			panelWorkingAnimation.Visible = false;
 		}
 
-		private Bitmap ToBitmap(BitArray bitArray)
+		private Bitmap ToBitmap(bool[] bitArray)
 		{
 			Bitmap result;
 
@@ -470,7 +470,7 @@ namespace UnitTestBloomFilter
 
 			if (IsFilterOpen)
 			{
-				var paintBitmap = Task.Factory.StartNew(() => (Image)ToBitmap(filter.FilterArray));
+				var paintBitmap = Task.Factory.StartNew(() => (Image)ToBitmap(filter.FilterArray.GetArray()));
 				var setPictureBox = paintBitmap.ContinueWith((image) => { SetPictureBoxImage(pictureBoxFilter, image.Result); HideWorkingAnimation(); });
 			}
 
