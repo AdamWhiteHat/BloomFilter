@@ -3,7 +3,7 @@ using System.Linq;
 using System.Numerics;
 using System.Collections.Generic;
 
-namespace BloomFilterCore
+namespace BloomFilterCore.Utilities
 {
 	public static class PrimeHelper
 	{

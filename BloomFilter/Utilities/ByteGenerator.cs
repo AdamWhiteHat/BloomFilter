@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BloomFilterCore
+namespace BloomFilterCore.Utilities
 {
 	public class ByteGenerator
 	{
@@ -27,7 +27,7 @@ namespace BloomFilterCore
 			}
 
 			public string GetNext()
-			{				
+			{
 				counter += increment;
 				return Math.Abs(_rand.Next(digitSize)).ToString().PadLeft(size, '1');
 			}

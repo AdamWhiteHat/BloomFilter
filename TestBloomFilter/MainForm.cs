@@ -13,7 +13,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using BloomFilterCore;
-using BloomFilterCore.Serialization;
+using BloomFilterCore.Utilities;
+using BloomFilterCore.Serializers;
 
 namespace UnitTestBloomFilter
 {
@@ -430,7 +431,7 @@ namespace UnitTestBloomFilter
 			string file = FormHelper.OpenFileDlg(FormHelper.FiletypeFilters.BloomFiles);
 			if (!string.IsNullOrWhiteSpace(file))
 			{
-				filter = BloomFilterSerializer.Load(file, cbCompress.Checked);
+				filter = BinarySerializer.Load(file, cbCompress.Checked);
 				tbMaxElementsToHash.Text = filter.MaxElementsToHash.ToString();
 				tbHashesPerElement.Text = filter.HashesPerElement.ToString();
 				tbErrorProbability.Text = filter.ErrorProbability.ToString();
@@ -444,7 +445,7 @@ namespace UnitTestBloomFilter
 			string file = FormHelper.SaveFileDlg(FormHelper.FiletypeFilters.BloomFiles);
 			if (!string.IsNullOrWhiteSpace(file))
 			{
-				BloomFilterSerializer.Save(filter, file, cbCompress.Checked);
+				BinarySerializer.Save(filter, file, cbCompress.Checked);
 			}
 		}
 

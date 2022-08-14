@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
-namespace BloomFilterCore
+namespace BloomFilterCore.Utilities
 {
 	public class CryptoRandom : IDisposable
 	{

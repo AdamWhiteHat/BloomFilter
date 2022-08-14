@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
+using BloomFilterCore.Utilities;
 
 namespace BloomFilterCore.HashProviders
 {

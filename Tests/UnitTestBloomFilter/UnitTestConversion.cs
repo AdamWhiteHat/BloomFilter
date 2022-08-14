@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using BloomFilterCore;
-using BloomFilterCore.Serialization;
+using BloomFilterCore.Utilities;
+using BloomFilterCore.Serializers;
 
 namespace UnitTestBloomFilter
 {

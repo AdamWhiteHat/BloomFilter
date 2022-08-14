@@ -84,6 +84,8 @@
     <Compile Include="HashProviders\MultiplicativeGroupHashProvider.cs" />
     <Compile Include="HashProviders\StreamCipherHashProvider.cs" />
     <Compile Include="Interfaces\IHashProvider.cs" />
+    <Compile Include="Serializers\CompressedStream.cs" />
+    <Compile Include="Serializers\XmlSerializer.cs" />
     <Compile Include="Utilities\ByteBits.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
@@ -93,7 +95,7 @@
     <Compile Include="Utilities\Range.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BloomFilter.Serializer.cs" />
+    <Compile Include="Serializers\BinarySerializer.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

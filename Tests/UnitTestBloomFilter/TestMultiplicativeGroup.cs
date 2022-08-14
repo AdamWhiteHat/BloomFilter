@@ -3,12 +3,13 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using BloomFilterCore;
-using System.Diagnostics;
+using BloomFilterCore.Utilities;
 
 namespace UnitTestBloomFilter
 {
@@ -22,7 +23,7 @@ namespace UnitTestBloomFilter
 		[TestMethod]
 		public void TestModulus()
 		{
-			BloomFilterCore.PrimeHelper.Initialize();
+			PrimeHelper.Initialize();
 
 			// BigInteger FindPrimitiveRoot(BigInteger p)
 			ParameterExpression paramP = Expression.Parameter(typeof(BigInteger), "p");

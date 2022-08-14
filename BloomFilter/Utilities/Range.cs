@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace BloomFilterCore
+namespace BloomFilterCore.Utilities
 {
 	public static class Range
 	{
