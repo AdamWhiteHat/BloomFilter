@@ -9,9 +9,11 @@ using System.Runtime.Serialization;
 namespace BloomFilterCore
 {
 	using HashProviders;
+	using Filters;
 
 	[KnownType(typeof(MultiplicativeGroupHashProvider))]
 	[KnownType(typeof(StreamCipherHashProvider))]
+	[KnownType(typeof(DefaultFilter))]
 	[DataContract]
 	public class BloomFilter
 	{
@@ -26,20 +28,13 @@ namespace BloomFilterCore
 		[DataMember]
 		public Int32 FilterSizeInBits { get; private set; }
 		[DataMember]
-		public BitArray FilterArray;
+		public DefaultFilter FilterArray;
 		[DataMember]
 		private IHashProvider _hashProvider { get; set; }
 
 		[IgnoreDataMember]
 		public decimal FilterSizeInBytes { get { return Math.Round(((decimal)FilterSizeInBits) / 8m); } }
-
-		[IgnoreDataMember]
-		public bool this[int index]
-		{
-			get { return FilterArray[index]; }
-			set { FilterArray[index] = value; }
-		}
-
+				
 		#region Constructors
 
 		public BloomFilter()
@@ -85,7 +80,7 @@ namespace BloomFilterCore
 
 			foreach (int index in indices)
 			{
-				this[index] = true;
+				FilterArray[index] = true;
 			}
 
 			ElementsHashed++;
@@ -94,12 +89,12 @@ namespace BloomFilterCore
 		public bool ContainsElement(string element)
 		{
 			int[] indices = _hashProvider.HashElement(element);
-			return indices.All(i => this[i] == true);
+			return indices.All(i => FilterArray[i] == true);
 		}
 
 		public void ClearElements()
 		{
-			FilterArray = new BitArray(FilterSizeInBits, false);
+			FilterArray = new DefaultFilter(FilterSizeInBits);
 		}
 
 		// Union => bitwise OR
@@ -110,7 +105,7 @@ namespace BloomFilterCore
 			if (FilterArray == null || FilterArray.Length < 1) { throw new ArgumentNullException("filterArray"); }
 
 			decimal percent = 0;
-			int setBits = FilterArray.OfType<bool>().Count(b => b == true);
+			int setBits = FilterArray.BitsSet;
 			if (setBits > 0)
 			{
 				percent = setBits * 100 / FilterSizeInBits;
