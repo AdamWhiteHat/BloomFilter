@@ -8,7 +8,7 @@ using System.Text;
 namespace BloomFilterCore.Filters
 {
 	[DataContract]
-	public class DefaultFilter : IFilter
+	public class BitArrayFilter : IFilter
 	{
 		[DataMember]
 		private BitArray _filterArray;
@@ -24,15 +24,15 @@ namespace BloomFilterCore.Filters
 		public int Length { get { return _filterArray.Length; } }
 
 		[IgnoreDataMember]
-		public int BitsSet { get { return _filterArray.OfType<bool>().Count(b => b == true); } }
+		public int SetBitCount { get { return _filterArray.OfType<bool>().Count(b => b == true); } }
 
 
-		public DefaultFilter()
+		public BitArrayFilter()
 		{
 			_filterArray = new BitArray(0);
 		}
 
-		public DefaultFilter(int filterSizeInBits)
+		public BitArrayFilter(int filterSizeInBits)
 		{
 			_filterArray = new BitArray(filterSizeInBits, false);
 		}

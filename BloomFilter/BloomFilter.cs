@@ -13,7 +13,7 @@ namespace BloomFilterCore
 
 	[KnownType(typeof(MultiplicativeGroupHashProvider))]
 	[KnownType(typeof(StreamCipherHashProvider))]
-	[KnownType(typeof(DefaultFilter))]
+	[KnownType(typeof(BitArrayFilter))]
 	[DataContract]
 	public class BloomFilter
 	{
@@ -28,13 +28,13 @@ namespace BloomFilterCore
 		[DataMember]
 		public Int32 FilterSizeInBits { get; private set; }
 		[DataMember]
-		public DefaultFilter FilterArray;
+		public IFilter FilterArray;
 		[DataMember]
 		private IHashProvider _hashProvider { get; set; }
 
 		[IgnoreDataMember]
 		public decimal FilterSizeInBytes { get { return Math.Round(((decimal)FilterSizeInBits) / 8m); } }
-				
+
 		#region Constructors
 
 		public BloomFilter()
@@ -94,7 +94,7 @@ namespace BloomFilterCore
 
 		public void ClearElements()
 		{
-			FilterArray = new DefaultFilter(FilterSizeInBits);
+			FilterArray = new BitArrayFilter(FilterSizeInBits);
 		}
 
 		// Union => bitwise OR
@@ -105,7 +105,7 @@ namespace BloomFilterCore
 			if (FilterArray == null || FilterArray.Length < 1) { throw new ArgumentNullException("filterArray"); }
 
 			decimal percent = 0;
-			int setBits = FilterArray.BitsSet;
+			int setBits = FilterArray.SetBitCount;
 			if (setBits > 0)
 			{
 				percent = setBits * 100 / FilterSizeInBits;

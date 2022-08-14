@@ -9,7 +9,7 @@ namespace BloomFilterCore
 	{
 		bool this[int index] { get; set; }
 		int Length { get; }
-		int BitsSet { get; }
+		int SetBitCount { get; }
 		bool[] GetArray();
 	}
 }
