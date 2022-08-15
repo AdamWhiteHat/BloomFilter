@@ -82,6 +82,7 @@
     <Compile Include="BloomFilter.cs" />
     <Compile Include="BigIntegerExtensionMethods.cs" />
     <Compile Include="Filters\BitArrayFilter.cs" />
+    <Compile Include="Filters\RunLengthEncodedFilter.cs" />
     <Compile Include="Interfaces\IFilter.cs" />
     <Compile Include="HashProviders\MultiplicativeGroupHashProvider.cs" />
     <Compile Include="HashProviders\StreamCipherHashProvider.cs" />

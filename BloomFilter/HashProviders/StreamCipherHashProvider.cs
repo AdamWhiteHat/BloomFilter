@@ -12,9 +12,9 @@ namespace BloomFilterCore.HashProviders
 	[DataContract]
 	public class StreamCipherHashProvider : IHashProvider
 	{
-		[DataMember]
+		[DataMember(Name = "FilterSize", Order = 0)]
 		private int _filterSize;
-		[DataMember]
+		[DataMember(Name = "HashesPerElement", Order = 1)]
 		private int _hashesPerElement;
 		[IgnoreDataMember]
 		private bool _isDisposed;

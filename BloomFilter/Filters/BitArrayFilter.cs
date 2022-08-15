@@ -10,7 +10,7 @@ namespace BloomFilterCore.Filters
 	[DataContract]
 	public class BitArrayFilter : IFilter
 	{
-		[DataMember]
+		[DataMember(Name = "FilterArray")]
 		private BitArray _filterArray;
 
 		[IgnoreDataMember]

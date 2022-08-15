@@ -58,6 +58,7 @@ namespace UnitTestBloomFilter
 			generateHashesWorker.RunWorkerCompleted += generateHashesWorker_RunWorkerCompleted;
 
 			panelWorkingAnimation.Visible = false;
+			cbCompress.Checked = Settings.Output_Compress;
 		}
 
 		private Bitmap ToBitmap(bool[] bitArray)
@@ -471,14 +472,21 @@ namespace UnitTestBloomFilter
 
 			if (IsFilterOpen)
 			{
+				SetControlText(label1, string.Format("{0:n0} bits", filter.FilterSizeInBits));
+				SetControlText(label2, FormHelper.FormatFilesize(filter.FilterSizeInBits));
+				SetControlText(label3, string.Concat(filter.ElementsHashed.ToString(), " Elements hashed"));
+				SetControlText(label4, filter.ToString());
+
 				var paintBitmap = Task.Factory.StartNew(() => (Image)ToBitmap(filter.FilterArray.GetArray()));
-				var setPictureBox = paintBitmap.ContinueWith((image) => { SetPictureBoxImage(pictureBoxFilter, image.Result); HideWorkingAnimation(); });
+				var setPictureBox = paintBitmap.ContinueWith(
+					(image) =>
+					  {
+						  SetPictureBoxImage(pictureBoxFilter, image.Result);
+						  HideWorkingAnimation();
+					  });
 			}
 
-			SetControlText(label1, string.Format("{0:n0} bits", filter.FilterSizeInBits));
-			SetControlText(label2, FormHelper.FormatFilesize(filter.FilterSizeInBits));
-			SetControlText(label3, string.Concat(filter.ElementsHashed.ToString(), " Elements hashed"));
-			SetControlText(label4, filter.ToString());
+
 		}
 
 		private void SetPictureBoxImage(PictureBox control, Image image)

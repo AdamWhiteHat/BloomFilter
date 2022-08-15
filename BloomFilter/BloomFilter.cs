@@ -13,23 +13,30 @@ namespace BloomFilterCore
 
 	[KnownType(typeof(MultiplicativeGroupHashProvider))]
 	[KnownType(typeof(StreamCipherHashProvider))]
+	[KnownType(typeof(RunLengthEncodedFilter))]
 	[KnownType(typeof(BitArrayFilter))]
 	[DataContract]
 	public class BloomFilter
 	{
-		[DataMember]
-		public double ErrorProbability { get; private set; }
-		[DataMember]
+		[DataMember(Order = 0)]
 		public Int32 MaxElementsToHash { get; private set; }
-		[DataMember]
+
+		[DataMember(Order = 1)]
+		public double ErrorProbability { get; private set; }
+
+		[DataMember(Order = 2)]
 		public Int32 HashesPerElement { get; private set; }
-		[DataMember]
-		public Int32 ElementsHashed { get; private set; }
-		[DataMember]
+
+		[DataMember(Order = 3)]
 		public Int32 FilterSizeInBits { get; private set; }
-		[DataMember]
+
+		[DataMember(Order = 4)]
+		public Int32 ElementsHashed { get; private set; }
+
+		[DataMember(Name = "IFilter", Order = 6)]
 		public IFilter FilterArray;
-		[DataMember]
+
+		[DataMember(Name = "IHashProvider", Order = 5)]
 		private IHashProvider _hashProvider { get; set; }
 
 		[IgnoreDataMember]
@@ -37,10 +44,6 @@ namespace BloomFilterCore
 
 		#region Constructors
 
-		public BloomFilter()
-		{
-			_hashProvider = new StreamCipherHashProvider(); // new MultiplicativeGroupHashProvider(); 
-		}
 
 		public BloomFilter(int maxElementsToHash, double collisionProbability)
 			: this()
@@ -65,8 +68,22 @@ namespace BloomFilterCore
 			ClearElements();
 		}
 
+		public BloomFilter()
+		{
+			_hashProvider = new StreamCipherHashProvider(); // new MultiplicativeGroupHashProvider(); 
+		}
+
+		public void ClearElements()
+		{
+			FilterArray = new BitArrayFilter(FilterSizeInBits); // BitArrayFilter(FilterSizeInBits);
+		}
+
 		public void InitializeHashProvider()
 		{
+			if (_hashProvider == null)
+			{
+				_hashProvider = new StreamCipherHashProvider(); // new MultiplicativeGroupHashProvider(); 
+			}
 			_hashProvider.Initialize();
 		}
 
@@ -90,11 +107,6 @@ namespace BloomFilterCore
 		{
 			int[] indices = _hashProvider.HashElement(element);
 			return indices.All(i => FilterArray[i] == true);
-		}
-
-		public void ClearElements()
-		{
-			FilterArray = new BitArrayFilter(FilterSizeInBits);
 		}
 
 		// Union => bitwise OR

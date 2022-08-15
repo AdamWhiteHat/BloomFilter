@@ -12,11 +12,11 @@ namespace BloomFilterCore.HashProviders
 	[DataContract]
 	public class MultiplicativeGroupHashProvider : IHashProvider
 	{
-		[DataMember]
+		[DataMember(Name = "FilterSize", Order = 0)]
 		private int _filterSize;
-		[DataMember]
+		[DataMember(Name = "HashesPerElement", Order = 1)]
 		private int _hashesPerElement;
-		[DataMember]
+		[DataMember(Name = "MultiplicativeGroupParameters", Order = 2)]
 		private List<Tuple<BigInteger, BigInteger>> _multiplicativeGroupParameters { get; set; }
 
 		[IgnoreDataMember]
