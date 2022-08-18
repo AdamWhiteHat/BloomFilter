@@ -47,16 +47,8 @@ namespace BloomFilterCore.Filters
 
 		private bool GetBitValueAt(int index)
 		{
-			int retrieveIndex = FindRunIndexFromBitIndex(index);
-
-			Run found = _filter[retrieveIndex];
-
-			if (!found.IsIndexInRange(index))
-			{
-				throw new Exception($"{nameof(FindRunIndexFromBitIndex)} method broken?");
-			}
-
-			return found.Value;
+			int retrieveIndex = FindRunIndexFromBitIndex(index);						
+			return _filter[retrieveIndex].Value;
 		}
 
 		private void SetBitValueAt(int index, bool value)
