@@ -200,6 +200,12 @@ namespace BloomFilterCore.Filters
 				};
 			}
 
+			public bool[] Serialize()
+			{
+				// # bytes used to represent length | length | value
+				throw new NotImplementedException();
+			}
+
 			public override string ToString()
 			{
 				return $"{(Value ? "T" : "F")}{Length}";
